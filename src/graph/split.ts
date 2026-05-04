@@ -6,11 +6,12 @@ import { TextLoader } from "@langchain/classic/document_loaders/fs/text";
 import { RecursiveCharacterTextSplitter } from "@langchain/classic/text_splitter";
 import { Document } from "langchain";
 import { Pinecone } from "@pinecone-database/pinecone";
+import { saveChunksToDB } from "../tools/database.ts";
+import type { DocumentChunk } from "../tools/database.ts";
 // import { Ollama } from "ollama";
 import ollama from "ollama";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-console.log('@process.env.PINECONE_API_KEY', process.env.PINECONE_API_KEY);
 const pc = new Pinecone({
     apiKey: String(process.env.PINECONE_API_KEY),
 })
@@ -155,7 +156,7 @@ async function main() {
         }
     }
     console.log(`\n📊 总计生成 ${allChunks.length} 个最终 chunk`);
-    console.log("\n--- 前 2 个 Chunk 示例 ---");
+    // console.log("\n--- 前 2 个 Chunk 示例 ---");
     for (let i = 0; i < Math.min(2, allChunks.length); i++) {
         const chunk = allChunks[i];
         // console.log(`\n[Chunk ${i + 1}]`);
@@ -170,8 +171,20 @@ async function main() {
     })
     console.log(`\n向量化完成，共获得${embeddings.length}个向量，耗时${(total_duration / 1e9)}s`);
 
+    const documentChunks: DocumentChunk[] = allChunks.map((chunk, index) => ({
+        document_id: `doc-${index}`,
+        chunk_index: index,
+        content: chunk.pageContent,
+        metadata: chunk.metadata,
+    }));
+
+    await saveChunksToDB(documentChunks);
+    // console.log('✅ 切片数据已保存到 MySQL 数据库！');
+
     const pcRecords = allChunks.map((chunk, index) => {
-        const serializedMetadata: Record<string, string | number | boolean | string[]> = {};
+        const serializedMetadata: Record<string, string | number | boolean | string[]> = {
+            chunk_index: index, // 与 MySQL document_chunks.chunk_index 一致，便于关联查询
+        };
         for (const [key, value] of Object.entries(chunk.metadata)) {
             serializedMetadata[key] = typeof value === "object" && value !== null && !Array.isArray(value)
                 ? JSON.stringify(value)
