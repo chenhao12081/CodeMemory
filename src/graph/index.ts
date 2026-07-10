@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { ChatDeepSeek } from "@langchain/deepseek";
+import { ChatOllama } from "@langchain/ollama";
 import { StateGraph, START, END, MemorySaver } from "@langchain/langgraph";
 import type { GraphNode, ConditionalEdgeRouter } from "@langchain/langgraph";
 import { v4 as uuidv4 } from "uuid";
@@ -11,9 +11,8 @@ import pool from "../database/db.ts";
 import type { DocumentChunkRow } from "../tools/database.ts";
 import { AIMessage, HumanMessage } from "@langchain/core/messages";
 
-const model = new ChatDeepSeek({
-    model: "deepseek-chat",
-    apiKey: process.env.DEEPSEEK_API_KEY!,
+const model = new ChatOllama({
+    model: process.env.OLLAMA_CHAT_MODEL || "qwen2.5",
 })
 
 const routerNode: GraphNode<typeof AgentState> = async (state) => {
