@@ -15,7 +15,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const pc = new Pinecone({
     apiKey: String(process.env.PINECONE_API_KEY),
 })
-const index = pc.index('my-rag-index');
+const index = pc.index('rag-index');
 
 function splitByMarkdownHeaders(content: string) {
     const chunks: Array<{ text: string; headers: Record<string, string>}> = [];

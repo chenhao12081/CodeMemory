@@ -23,7 +23,6 @@ const routerNode: GraphNode<typeof AgentState> = async (state) => {
         你是一个智能路由中枢。你需要根据用户的输入，决定下一步的操作路径。
         你背后的向量数据库中仅包含以下领域的文档：
         1. AI 应用与后端流处理
-        2. 前端工程化与 Webpack
 
         判定规则：
         - 如果用户的提问属于上述范畴，请输出 "need_rag"
