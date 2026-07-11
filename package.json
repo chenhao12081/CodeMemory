@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node src/graph/index.ts"
+    "start": "node src/graph/index.ts",
+    "eval:intent": "node src/evals/intent.ts"
   },
   "keywords": [],
   "author": "",
