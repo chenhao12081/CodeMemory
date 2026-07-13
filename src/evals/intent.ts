@@ -14,7 +14,7 @@ type EvalResult = EvalCase & {
     error?: string;
 };
 
-const datasetPath = resolve(process.argv[2] || "data/intent-eval.jsonl");
+const datasetPath = resolve(process.argv[2] || "src/data/intent-eval.jsonl");
 
 function isIntent(value: unknown): value is Intent {
     return typeof value === "string" && INTENTS.includes(value as Intent);

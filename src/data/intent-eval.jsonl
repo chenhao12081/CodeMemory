@@ -1,0 +1,110 @@
+# 标注原则：expected 表示问题是否匹配已索引主题、是否值得检索，不表示文档必然有精确答案。
+# expected_answerable_by_rag 仅标记 need_rag 样例的上下文充分性；当前 eval:intent 只统计 expected。
+# --- 大模型基础、提示词与训练 ---
+{"id":"case-001","topic":"transformer","question":"Transformer 的整体架构是怎样工作的？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-002","topic":"transformer","question":"自注意力机制在 Transformer 里解决了什么问题？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-003","topic":"transformer","question":"Transformer 最早是由谁提出的？","expected":"need_rag","expected_answerable_by_rag":false}
+{"id":"case-004","topic":"llm_basics","question":"大语言模型的发展经历了哪些阶段？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-005","topic":"llm_basics","question":"LLM 和大语言模型分别指什么？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-006","topic":"prompt_engineering","question":"提示词工程到底是什么？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-007","topic":"prompt_engineering","question":"写提示词时通常要包含哪些要素？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-008","topic":"prompt_engineering","question":"零样本提示适合什么场景？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-009","topic":"prompt_engineering","question":"怎样用少样本示例改善模型回答？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-010","topic":"prompt_engineering","question":"链式思考提示是什么？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-011","topic":"model_evaluation","question":"评估大语言模型效果时通常要看哪些方法和指标？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-012","topic":"prompt_engineering","question":"多个提示步骤串起来应该怎么设计？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-013","topic":"prompt_engineering","question":"思维树和普通链式思考有什么区别？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-014","topic":"fine_tuning","question":"什么是指令微调？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-015","topic":"fine_tuning","question":"LoRA 和全量微调有什么差别？","expected":"need_rag","expected_answerable_by_rag":true}
+# --- Node 流式处理与 AI SDK ---
+{"id":"case-016","topic":"node_stream","question":"Node.js 的流式操作适合解决什么问题？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-017","topic":"node_stream","question":"可读流和可写流的区别是什么？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-018","topic":"node_stream","question":"pipe 和 pipeline 在 Node 里该怎么使用？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-019","topic":"sse","question":"SSE 与普通 HTTP 响应有什么不同？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-020","topic":"vercel_ai_sdk","question":"如何用 Vercel AI SDK 把模型输出流式返回浏览器？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-021","topic":"vercel_ai_sdk","question":"streamText 的结果可以怎样转换和处理？","expected":"need_rag","expected_answerable_by_rag":true}
+# --- RAG、文档处理与向量检索 ---
+{"id":"case-022","topic":"rag","question":"RAG 用来解决大模型的什么问题？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-023","topic":"rag","question":"构建 RAG 时为什么要先对文档切片？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-024","topic":"embedding","question":"Embedding 向量化在检索流程中负责什么？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-025","topic":"embedding","question":"Ollama 配合 bge-m3 做文本向量化要注意什么？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-026","topic":"vector_database","question":"Pinecone 在 RAG 系统里怎样存储和查询向量？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-027","topic":"vector_database","question":"向量数据库检索到的结果为什么还要回查原始文档？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-028","topic":"document_parsing","question":"Node.js 怎么读取 Markdown 文档内容？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-029","topic":"document_parsing","question":"如何在 Node 项目中解析 Excel 或 Word 文件？","expected":"need_rag","expected_answerable_by_rag":true}
+# --- Agent、工具调用与 MCP ---
+{"id":"case-030","topic":"agent","question":"智能体和普通聊天模型有什么区别？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-031","topic":"agent","question":"常见的 Agentic workflow 设计模式有哪些？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-032","topic":"agent_evaluation","question":"应该怎样评估一个智能体的执行效果？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-033","topic":"tool_calling","question":"大模型工具调用的 JSON Schema 应该怎么定义？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-034","topic":"react_agent","question":"ReAct 模式怎样让模型决定何时调用工具？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-035","topic":"mcp","question":"MCP 在智能体系统中是做什么的？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-036","topic":"knowledge_graph","question":"知识图谱能怎样配合大模型应用？","expected":"need_rag","expected_answerable_by_rag":true}
+# --- LangChain Core ---
+{"id":"case-037","topic":"langchain_messages","question":"LangChain 的消息格式有哪些类型？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-038","topic":"langchain_messages","question":"SystemMessage、HumanMessage、AIMessage 分别用于什么？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-039","topic":"langchain_model","question":"invoke、stream 和 batch 调用模型时怎么选择？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-040","topic":"langchain_structured_output","question":"怎样让 LangChain 模型按 Zod Schema 返回结构化数据？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-041","topic":"langchain_tools","question":"ToolNode 遇到工具调用错误时该怎么处理？","expected":"need_rag","expected_answerable_by_rag":true}
+# --- LangGraph ---
+{"id":"case-042","topic":"langgraph","question":"怎样用 LangGraph 构建一个基础工作流？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-043","topic":"langgraph_routing","question":"LangGraph 里的条件路由应该怎么配置？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-044","topic":"langgraph_persistence","question":"LangGraph 的 checkpoint 持久化有什么作用？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-045","topic":"langgraph_state","question":"如何查看 LangGraph 某个线程的状态历史？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-046","topic":"langgraph_streaming","question":"LangGraph 如何把工作流执行过程流式输出？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-047","topic":"langgraph_interrupt","question":"工作流中断后怎样恢复 LangGraph 的执行？","expected":"need_rag","expected_answerable_by_rag":true}
+# --- Ollama 与实践问题 ---
+{"id":"case-048","topic":"ollama","question":"怎样在本地通过 Ollama 运行聊天模型？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-049","topic":"ollama","question":"Ollama 的 embed 接口怎样生成文本向量？","expected":"need_rag","expected_answerable_by_rag":true}
+{"id":"case-050","topic":"rag_troubleshooting","question":"RAG 切片后向量检索效果不稳定时可以怎么排查？","expected":"need_rag","expected_answerable_by_rag":true}
+# --- 非知识库主题与相邻边界 ---
+{"id":"case-051","topic":"daily_life","question":"今天天气怎么样？","expected":"direct_chat"}
+{"id":"case-052","topic":"creative_writing","question":"写一首关于夏天的七言绝句。","expected":"direct_chat"}
+{"id":"case-053","topic":"general_knowledge","question":"中国的首都是哪里？","expected":"direct_chat"}
+{"id":"case-054","topic":"travel","question":"帮我规划一份杭州两日游行程。","expected":"direct_chat"}
+{"id":"case-055","topic":"cooking","question":"番茄炒蛋怎么做？","expected":"direct_chat"}
+{"id":"case-056","topic":"market_data","question":"现在比特币的价格是多少？","expected":"direct_chat"}
+{"id":"case-057","topic":"sports","question":"昨晚英超比赛的比分是什么？","expected":"direct_chat"}
+{"id":"case-058","topic":"movie","question":"推荐几部适合周末看的悬疑电影。","expected":"direct_chat"}
+{"id":"case-059","topic":"translation","question":"把“保持好奇”翻译成英文。","expected":"direct_chat"}
+{"id":"case-060","topic":"math","question":"帮我计算 125 乘以 48。","expected":"direct_chat"}
+{"id":"case-061","topic":"react","question":"介绍一下 React 前端框架。","expected":"direct_chat"}
+{"id":"case-062","topic":"react","question":"React Hook 如何管理组件状态？","expected":"direct_chat"}
+{"id":"case-063","topic":"vue","question":"Vue 组件之间怎样传递数据？","expected":"direct_chat"}
+{"id":"case-064","topic":"css","question":"CSS 如何让一个元素在页面中水平垂直居中？","expected":"direct_chat"}
+{"id":"case-065","topic":"frontend_tooling","question":"Webpack 和 Vite 的核心差异是什么？","expected":"direct_chat"}
+{"id":"case-066","topic":"nextjs","question":"Next.js 的 App Router 应该怎么组织页面？","expected":"direct_chat"}
+{"id":"case-067","topic":"angular","question":"Angular 的依赖注入机制怎么用？","expected":"direct_chat"}
+{"id":"case-068","topic":"tailwind","question":"Tailwind CSS 怎么写响应式布局？","expected":"direct_chat"}
+{"id":"case-069","topic":"figma","question":"怎样在 Figma 中创建组件变体？","expected":"direct_chat"}
+{"id":"case-070","topic":"mini_program","question":"微信小程序页面如何做数据绑定？","expected":"direct_chat"}
+{"id":"case-071","topic":"java","question":"Java 服务如何实现 SSE 推送？","expected":"direct_chat"}
+{"id":"case-072","topic":"spring_boot","question":"Spring Boot 怎样统一处理异常？","expected":"direct_chat"}
+{"id":"case-073","topic":"django","question":"Django 的 ORM 怎么定义关联关系？","expected":"direct_chat"}
+{"id":"case-074","topic":"go","question":"Go 的 goroutine 和 channel 怎样协作？","expected":"direct_chat"}
+{"id":"case-075","topic":"rust","question":"Rust 的所有权机制是什么？","expected":"direct_chat"}
+{"id":"case-076","topic":"c_language","question":"C 语言指针和数组有什么关系？","expected":"direct_chat"}
+{"id":"case-077","topic":"mysql","question":"MySQL 索引失效通常有哪些原因？","expected":"direct_chat"}
+{"id":"case-078","topic":"redis","question":"Redis 的缓存淘汰策略有哪些？","expected":"direct_chat"}
+{"id":"case-079","topic":"docker","question":"Docker Compose 怎样管理多个服务？","expected":"direct_chat"}
+{"id":"case-080","topic":"kubernetes","question":"Kubernetes 部署应用的基本流程是什么？","expected":"direct_chat"}
+{"id":"case-081","topic":"computer_vision","question":"CNN 在图像分类任务中的作用是什么？","expected":"direct_chat"}
+{"id":"case-082","topic":"computer_vision","question":"训练一个猫狗图像分类器需要哪些步骤？","expected":"direct_chat"}
+{"id":"case-083","topic":"diffusion_model","question":"Stable Diffusion 的文生图参数应该怎么调？","expected":"direct_chat"}
+{"id":"case-084","topic":"machine_learning","question":"XGBoost 适合处理什么类型的数据？","expected":"direct_chat"}
+{"id":"case-085","topic":"recommendation_system","question":"推荐系统常见的召回策略有哪些？","expected":"direct_chat"}
+{"id":"case-086","topic":"tensorflow","question":"TensorFlow 如何保存和加载训练好的模型？","expected":"direct_chat"}
+{"id":"case-087","topic":"neural_network","question":"神经网络技术是什么？","expected":"direct_chat"}
+{"id":"case-088","topic":"object_detection","question":"目标检测和图像分类的区别是什么？","expected":"direct_chat"}
+{"id":"case-089","topic":"pytorch","question":"PyTorch 的 DataLoader 怎样加载训练数据？","expected":"direct_chat"}
+{"id":"case-090","topic":"distributed_training","question":"多机多卡训练模型时怎样做数据并行？","expected":"direct_chat"}
+{"id":"case-091","topic":"pgvector","question":"PostgreSQL 的 pgvector 扩展怎样做相似度搜索？","expected":"direct_chat"}
+{"id":"case-092","topic":"elasticsearch","question":"Elasticsearch 的倒排索引是如何工作的？","expected":"direct_chat"}
+{"id":"case-093","topic":"nginx","question":"Nginx 反向代理 SSE 时要配置哪些参数？","expected":"direct_chat"}
+{"id":"case-094","topic":"kafka","question":"Kafka 如何保证消息顺序？","expected":"direct_chat"}
+{"id":"case-095","topic":"git","question":"Git rebase 和 merge 分别适合什么场景？","expected":"direct_chat"}
+{"id":"case-096","topic":"linux","question":"Linux 文件权限中的 755 表示什么？","expected":"direct_chat"}
+{"id":"case-097","topic":"aws","question":"AWS 上部署一个网站有哪些常见方案？","expected":"direct_chat"}
+{"id":"case-098","topic":"flutter","question":"Flutter 如何实现页面跳转和参数传递？","expected":"direct_chat"}
+{"id":"case-099","topic":"ios","question":"SwiftUI 怎样管理页面状态？","expected":"direct_chat"}
+{"id":"case-100","topic":"android","question":"Android 中怎样使用 Kotlin 协程处理网络请求？","expected":"direct_chat"}
