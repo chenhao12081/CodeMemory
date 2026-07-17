@@ -137,6 +137,21 @@ function render(rows: DatasetRow[]): string {
     return `${rows.map((row) => JSON.stringify(row)).join("\n")}\n`;
 }
 
+function renderText(rows: DatasetRow[]): string {
+    return `${rows.map((row) => {
+        const system = row.messages.find((message) => message.role === "system");
+        const user = row.messages.find((message) => message.role === "user");
+        const assistant = row.messages.find((message) => message.role === "assistant");
+
+        if (!system || !user || !assistant) {
+            throw new Error(`样本 ${row.id} 缺少 system、user 或 assistant 消息。`);
+        }
+
+        const instruction = system.content.replace(/\s+/g, " ").trim();
+        return `指令：${instruction}\n问：${user.content}\n答：${assistant.content}`;
+    }).join("\n\n")}\n`;
+}
+
 function buildRows(prefix: "train" | "validation"): DatasetRow[] {
     const templates = prefix === "train" ? trainTemplates : validationTemplates;
     const rows: DatasetRow[] = [];
@@ -179,6 +194,8 @@ const validationRows = buildRows("validation");
 
 await writeFile(`${dataDirectory}intent-train.jsonl`, render(trainRows), "utf8");
 await writeFile(`${dataDirectory}intent-validation.jsonl`, render(validationRows), "utf8");
+await writeFile(`${dataDirectory}intent-train.txt`, renderText(trainRows), "utf8");
 
 console.log(`generated ${trainRows.length} training rows`);
 console.log(`generated ${validationRows.length} validation rows`);
+console.log(`generated ${trainRows.length} training text rows`);
