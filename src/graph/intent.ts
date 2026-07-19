@@ -1,6 +1,7 @@
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { ChatOllama } from "@langchain/ollama";
 import * as z from "zod";
+import { runtimeOptions } from "../config/runtime.ts";
 import { INTENTS, ROUTING_SYSTEM_PROMPT, type Intent } from "./intent-policy.ts";
 
 export { INTENTS, type Intent } from "./intent-policy.ts";
@@ -10,7 +11,8 @@ const intentSchema = z.object({
 });
 
 const model = new ChatOllama({
-    model: process.env.OLLAMA_CHAT_MODEL || "qwen2.5",
+    model: runtimeOptions.model,
+    temperature: 0,
 });
 
 const structuredModel = model.withStructuredOutput(intentSchema);

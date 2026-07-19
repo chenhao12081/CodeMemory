@@ -2,6 +2,7 @@ import "dotenv/config";
 import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import { runtimeOptions } from "../config/runtime.ts";
 import { INTENTS, classifyIntent, type Intent } from "../graph/intent.ts";
 import { ROUTING_SYSTEM_PROMPT } from "../graph/intent-policy.ts";
 
@@ -31,7 +32,7 @@ type LoadedDataset = {
     sha256: string;
 };
 
-const datasetPath = resolve(process.argv[2] || "src/data/intent-eval.jsonl");
+const datasetPath = resolve(runtimeOptions.positional[0] || "src/data/intent-eval.jsonl");
 const resultsDirectory = resolve(process.env.INTENT_EVAL_RESULTS_DIR || "eval-results/intent");
 
 function isIntent(value: unknown): value is Intent {
@@ -209,7 +210,7 @@ async function saveReport({
         durationMs: finishedAt.getTime() - startedAt.getTime(),
         model: {
             provider: "ollama",
-            name: process.env.OLLAMA_CHAT_MODEL || "qwen2.5",
+            name: runtimeOptions.model,
         },
         routingPolicy: {
             sha256: createHash("sha256").update(ROUTING_SYSTEM_PROMPT).digest("hex"),
@@ -234,6 +235,7 @@ async function main() {
     const { cases, sha256 } = await loadCases(datasetPath);
     const results: EvalResult[] = [];
 
+    console.log(`评测模型：${runtimeOptions.model}`);
     for (const [index, testCase] of cases.entries()) {
         process.stdout.write(`评测 ${index + 1}/${cases.length}\r`);
         try {
