@@ -1,9 +1,11 @@
 import "dotenv/config";
 
 export const DEFAULT_OLLAMA_CHAT_MODEL = "qwen2.5-intent-q4";
+export const DEFAULT_DEEPSEEK_CHAT_MODEL = "deepseek-v4-pro";
 
 export type RuntimeOptions = {
     model: string;
+    chatModel: string;
     positional: string[];
 };
 
@@ -40,6 +42,7 @@ export function parseRuntimeOptions(
 
     return {
         model: modelFromCli || process.env.OLLAMA_CHAT_MODEL || DEFAULT_OLLAMA_CHAT_MODEL,
+        chatModel: process.env.DEEPSEEK_CHAT_MODEL || DEFAULT_DEEPSEEK_CHAT_MODEL,
         positional,
     };
 }

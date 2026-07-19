@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { ChatOllama } from "@langchain/ollama";
+import { ChatDeepSeek } from "@langchain/deepseek";
 import { StateGraph, START, END, MemorySaver } from "@langchain/langgraph";
 import type { GraphNode, ConditionalEdgeRouter } from "@langchain/langgraph";
 import { v4 as uuidv4 } from "uuid";
@@ -9,8 +9,8 @@ import { classifyIntent } from "./intent.ts";
 import { runtimeOptions } from "../config/runtime.ts";
 import { retriveNode } from "./retrive.ts";
 
-const model = new ChatOllama({
-    model: runtimeOptions.model,
+const chatModel = new ChatDeepSeek({
+    model: runtimeOptions.chatModel,
 })
 
 const routerNode: GraphNode<typeof AgentState> = async (state) => {
@@ -40,7 +40,7 @@ const shouldContinue: ConditionalEdgeRouter<
 
 const agentBuilder = new StateGraph(AgentState)
     .addNode('chatNode', async (state) => {
-        const response = await model.invoke([
+        const response = await chatModel.invoke([
             ...state.messages,
             { role: 'user', content: `这是用户的问题：${state.question}，${state.intent === 'need_rag' ? `这是相关文档：${state.context}` : ''}` },
         ])
