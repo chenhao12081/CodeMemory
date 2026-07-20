@@ -6,5 +6,7 @@ export const AgentState = new StateSchema({
     question: z.string().describe('用户的问题'),
     intent: z.string().describe('记录用户意图'),
     context: z.string().describe('记录检索到的上下文'),
+    retrievalStatus: z.enum(['sufficient', 'insufficient']).describe('检索证据是否足以回答问题'),
+    retrievalReason: z.string().describe('检索证据判定原因'),
     output: z.string().describe('llm输出'),
 });
