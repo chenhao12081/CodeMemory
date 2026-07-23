@@ -14,7 +14,16 @@ export interface DocumentChunkRow extends RowDataPacket {
     chunk_index: number;
     content: string;
     metadata: any; // MySQL 中的 JSON 类型，mysql2 查出来后会自动解析为 JS 对象
+    heading_text: string | null;
     created_at: Date;
+}
+
+export function buildHeadingText(metadata: Record<string, any>): string {
+    return ["source", "category", "h1", "h2", "h3"]
+        .map((key) => metadata[key])
+        .filter((value): value is string => typeof value === "string" && Boolean(value.trim()))
+        .map((value) => value.trim())
+        .join(" ");
 }
 
 // 批量保存数据到 mysqk数据库
@@ -26,11 +35,12 @@ export async function saveChunksToDB(chunks: DocumentChunk[]) {
             chunk.document_id,
             chunk.chunk_index,
             chunk.content,
-            JSON.stringify(chunk.metadata) // MySQL 的 JSON 字段需要传入字符串
+            JSON.stringify(chunk.metadata), // MySQL 的 JSON 字段需要传入字符串
+            buildHeadingText(chunk.metadata),
         ]);
         const sql = `
             INSERT INTO document_chunks 
-            (document_id, chunk_index, content, metadata) 
+            (document_id, chunk_index, content, metadata, heading_text)
             VALUES ?
         `;
         const [result] = await pool.query<ResultSetHeader>(sql, [values]);

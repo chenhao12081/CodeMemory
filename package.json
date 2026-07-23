@@ -5,8 +5,9 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node --test src/retrieval/fusion.test.ts",
     "start": "node src/graph/index.ts",
+    "setup:retrieval-indexes": "node src/database/setup-retrieval-indexes.ts",
     "eval:intent": "node src/evals/intent.ts",
     "eval:intent:base": "node src/evals/intent.ts --model qwen2.5",
     "generate:intent-data": "node src/data/generate-intent-dataset.ts"
