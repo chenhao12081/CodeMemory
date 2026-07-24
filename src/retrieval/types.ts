@@ -22,4 +22,15 @@ export type FusedRetrievalCandidate = {
     metadata?: Record<string, unknown>;
 };
 
+export type RankedRetrievalCandidate = FusedRetrievalCandidate & {
+    finalRank: number;
+    rerankScore?: number;
+};
+
+export type RerankerStatus = {
+    applied: boolean;
+    model: string;
+    error?: string;
+};
+
 export type RetrievalWeights = Record<RetrievalChannel, number>;

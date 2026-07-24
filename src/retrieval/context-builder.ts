@@ -1,5 +1,8 @@
 import type { DocumentChunkRow } from "../tools/database.ts";
-import { RETRIEVAL_CHANNELS, type FusedRetrievalCandidate } from "./types.ts";
+import {
+    RETRIEVAL_CHANNELS,
+    type RankedRetrievalCandidate,
+} from "./types.ts";
 
 function normalizeMetadata(value: unknown): Record<string, unknown> {
     if (typeof value === "string") {
@@ -24,7 +27,7 @@ function metadataText(metadata: Record<string, unknown>, key: string): string | 
 }
 
 export function buildRetrievalContext(
-    candidates: readonly FusedRetrievalCandidate[],
+    candidates: readonly RankedRetrievalCandidate[],
     chunksByDocumentId: ReadonlyMap<string, DocumentChunkRow>,
     limit: number,
 ): string {
@@ -62,6 +65,9 @@ export function buildRetrievalContext(
             headingPath ? `标题：${headingPath}` : null,
             `召回通道：${channels}`,
             `融合得分：${candidate.fusedScore.toFixed(6)}`,
+            candidate.rerankScore === undefined
+                ? null
+                : `重排得分：${candidate.rerankScore.toFixed(6)}`,
             chunk.content,
         ].filter((line): line is string => line !== null).join("\n"));
     }
