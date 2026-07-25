@@ -8,6 +8,11 @@ import { Document } from "langchain";
 import { Pinecone } from "@pinecone-database/pinecone";
 import { saveChunksToDB } from "../tools/database.ts";
 import type { DocumentChunk } from "../tools/database.ts";
+import {
+    CHUNK_IDENTITY_SCHEMA_VERSION,
+    createCorpusVersion,
+    createStableChunkId,
+} from "../corpus/identity.ts";
 // import { Ollama } from "ollama";
 import ollama from "ollama";
 
@@ -16,6 +21,67 @@ const pc = new Pinecone({
     apiKey: String(process.env.PINECONE_API_KEY),
 })
 const index = pc.index('rag-index');
+
+type PreparedChunk = {
+    chunkId: string;
+    content: string;
+    metadata: Record<string, any>;
+};
+
+function metadataText(metadata: Record<string, any>, key: string): string | undefined {
+    const value = metadata[key];
+    return typeof value === "string" && value.trim() ? value : undefined;
+}
+
+function prepareCorpus(chunks: readonly Document[]) {
+    const chunksById = new Map<string, PreparedChunk>();
+
+    for (const chunk of chunks) {
+        const metadata = chunk.metadata as Record<string, any>;
+        const source = metadataText(metadata, "source");
+        if (!source) {
+            throw new Error("文档切片缺少 source，无法生成稳定 chunk ID");
+        }
+
+        const chunkId = createStableChunkId({
+            source,
+            headings: {
+                h1: metadataText(metadata, "h1"),
+                h2: metadataText(metadata, "h2"),
+                h3: metadataText(metadata, "h3"),
+            },
+            content: chunk.pageContent,
+        });
+
+        if (!chunksById.has(chunkId)) {
+            chunksById.set(chunkId, {
+                chunkId,
+                content: chunk.pageContent,
+                metadata,
+            });
+        }
+    }
+
+    const uniqueChunks = [...chunksById.values()];
+    const corpusVersion = createCorpusVersion(
+        uniqueChunks.map((chunk) => chunk.chunkId),
+    );
+    const preparedChunks = uniqueChunks.map((chunk) => ({
+        ...chunk,
+        metadata: {
+            ...chunk.metadata,
+            chunk_id: chunk.chunkId,
+            chunk_identity_version: CHUNK_IDENTITY_SCHEMA_VERSION,
+            corpus_version: corpusVersion,
+        },
+    }));
+
+    return {
+        chunks: preparedChunks,
+        corpusVersion,
+        duplicateCount: chunks.length - preparedChunks.length,
+    };
+}
 
 function splitByMarkdownHeaders(content: string) {
     const chunks: Array<{ text: string; headers: Record<string, string>}> = [];
@@ -104,7 +170,7 @@ function inferCategory(filename: string): string {
 async function main() {
     // 第一步 获取所有 markdown
     const dirname = join(__dirname, "..", "static");
-    const files = readdirSync(dirname).filter((f) => f.endsWith(".md"));
+    const files = readdirSync(dirname).filter((f) => f.endsWith(".md")).sort();
     console.log(`一个有${files.length}个Markdown文件`);
 
     const allChunks: Document[] = [];
@@ -155,7 +221,17 @@ async function main() {
             }
         }
     }
+    const preparedCorpus = prepareCorpus(allChunks);
     console.log(`\n📊 总计生成 ${allChunks.length} 个最终 chunk`);
+    if (preparedCorpus.duplicateCount > 0) {
+        console.log(`去除 ${preparedCorpus.duplicateCount} 个身份完全相同的重复 chunk`);
+    }
+    console.log(`稳定 chunk 数：${preparedCorpus.chunks.length}`);
+    console.log(`corpusVersion：${preparedCorpus.corpusVersion}`);
+
+    if (process.argv.includes("--version-only")) {
+        return;
+    }
     // console.log("\n--- 前 2 个 Chunk 示例 ---");
     for (let i = 0; i < Math.min(2, allChunks.length); i++) {
         const chunk = allChunks[i];
@@ -167,21 +243,21 @@ async function main() {
     // embeddings是chunks完成向量化的结果
     const { total_duration, embeddings } = await ollama.embed({
         model: "bge-m3",
-        input: allChunks.map((chunk) => chunk.pageContent),
+        input: preparedCorpus.chunks.map((chunk) => chunk.content),
     })
     console.log(`\n向量化完成，共获得${embeddings.length}个向量，耗时${(total_duration / 1e9)}s`);
 
-    const documentChunks: DocumentChunk[] = allChunks.map((chunk, index) => ({
-        document_id: `doc-${index}`,
+    const documentChunks: DocumentChunk[] = preparedCorpus.chunks.map((chunk, index) => ({
+        document_id: chunk.chunkId,
         chunk_index: index,
-        content: chunk.pageContent,
+        content: chunk.content,
         metadata: chunk.metadata,
     }));
 
     await saveChunksToDB(documentChunks);
     // console.log('✅ 切片数据已保存到 MySQL 数据库！');
 
-    const pcRecords = allChunks.map((chunk, index) => {
+    const pcRecords = preparedCorpus.chunks.map((chunk, index) => {
         const serializedMetadata: Record<string, string | number | boolean | string[]> = {
             chunk_index: index, // 与 MySQL document_chunks.chunk_index 一致，便于关联查询
         };
@@ -191,7 +267,7 @@ async function main() {
                 : value;
         }
         return {
-            id: `doc-${index}`,
+            id: chunk.chunkId,
             values: embeddings[index],
             metadata: serializedMetadata,
         };

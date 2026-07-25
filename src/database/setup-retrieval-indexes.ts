@@ -1,9 +1,14 @@
 import "dotenv/config";
 import type { RowDataPacket } from "mysql2/promise";
+import { STABLE_CHUNK_ID_LENGTH } from "../corpus/identity.ts";
 import pool from "./db.ts";
 
 interface CountRow extends RowDataPacket {
     count: number;
+}
+
+interface ColumnDefinitionRow extends RowDataPacket {
+    characterMaximumLength: number | null;
 }
 
 async function columnExists(columnName: string): Promise<boolean> {
@@ -28,7 +33,32 @@ async function indexExists(indexName: string): Promise<boolean> {
     return rows[0].count > 0;
 }
 
+async function documentIdCapacity(): Promise<number | null> {
+    const [rows] = await pool.query<ColumnDefinitionRow[]>(`
+        SELECT CHARACTER_MAXIMUM_LENGTH AS characterMaximumLength
+        FROM information_schema.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME = 'document_chunks'
+          AND COLUMN_NAME = 'document_id'
+    `);
+    return rows[0]?.characterMaximumLength ?? null;
+}
+
 async function main() {
+    const currentDocumentIdCapacity = await documentIdCapacity();
+    if (currentDocumentIdCapacity === null) {
+        throw new Error("document_chunks.document_id 字段不存在");
+    }
+    if (currentDocumentIdCapacity < STABLE_CHUNK_ID_LENGTH) {
+        await pool.query(`
+            ALTER TABLE document_chunks
+            MODIFY COLUMN document_id VARCHAR(${STABLE_CHUNK_ID_LENGTH}) NOT NULL
+        `);
+        console.log(
+            `已将 document_chunks.document_id 扩容为 VARCHAR(${STABLE_CHUNK_ID_LENGTH})`,
+        );
+    }
+
     if (!await columnExists("heading_text")) {
         await pool.query(`
             ALTER TABLE document_chunks
