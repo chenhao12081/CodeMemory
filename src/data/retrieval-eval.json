@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "corpusVersion": "sha256:4f0eee462d1ad9e35ca2b1db7c12bee906a7cd26bcf75cbb01f096903839f6fa",
+  "cases": [
+    {
+      "id": "q1",
+      "question": "从 Word2Vec、Transformer 到 ChatGPT，大语言模型经历了哪些发展阶段？",
+      "relevantChunkIds": [
+        "sha256:6576f48b821c6dd81577f625510a5303db9e7259ad7651e1ed2a8f9fc2da2a0d"
+      ]
+    },
+    {
+      "id": "q2",
+      "question": "LangGraph 子图怎样接入父图？父子 state 不同和共享 key 时分别怎么调用？",
+      "relevantChunkIds": [
+        "sha256:79f72483371e5686c823c2f39f757c576603191113b9ae2604c2bb7916ff6160",
+        "sha256:38a24de639e7b1db32a7859ca0bbcb3489e2b1a5c48837f5de4d5b93527215b6",
+        "sha256:1226faa4f2cafc5cd0b2231b4c7b76766ecf98c967a3f72d9b1460806a40197d",
+        "sha256:71b89aac88093a1d4b3825f39f8402c452ab4c1cdb68b59b29e25f45a873a77c"
+      ]
+    },
+    {
+      "id": "q3",
+      "question": "Pinecone 的 metadata 放不下大段原文时，向量和 chunk 正文应该怎么分开存？",
+      "relevantChunkIds": [
+        "sha256:887defa94fa9de732de11a347998f78c930994bdaf2d7221b61bb72a9b74bc75"
+      ]
+    },
+    {
+      "id": "q4",
+      "question": "LangGraph 里的 prompt chaining、并行、路由、orchestrator-worker、evaluator-optimizer 分别适合什么场景？",
+      "relevantChunkIds": [
+        "sha256:788afb275359446ec4d61da90a2a4f842d0dbd9d0f16edb62a9821159c39d921",
+        "sha256:28f4804088a420fe881853b74f7833b0dd53a64a0b59d44fa660062265651ca9",
+        "sha256:238e98db37db7cbbb965ea54f84598f1953f14421f6de6d31988899e6caa54bb",
+        "sha256:0c4507e0a508f12a50ae09565defa8d73b3f96f8449f5144f23ec9e086f87019"
+      ]
+    },
+    {
+      "id": "q5",
+      "question": "只针对一个任务全面微调后，模型为什么可能忘掉其他能力，应该怎么缓解？",
+      "relevantChunkIds": [
+        "sha256:37f7a0776d3434a9dcf5e0fc6c568a318b599bb5cd3c8eaeb22d178e8774d8a5"
+      ]
+    },
+    {
+      "id": "q6",
+      "question": "显存有限，不想更新大模型全部权重时，有哪些只训练少量参数的微调方法？",
+      "relevantChunkIds": [
+        "sha256:b19e4fd0f0c472d3103937c7d6a7fcbdb5d74889a7c18c844fe40f59b72d9d9c"
+      ]
+    },
+    {
+      "id": "q7",
+      "question": "ROUGE 和 BLEU 各自适合评估什么任务，为什么高分不一定代表输出质量好？",
+      "relevantChunkIds": [
+        "sha256:721f6a1e74071d6dccc982a2c7f018dcd93ebc7ec37f661634361392a3c52a67",
+        "sha256:f9d2c12001a99b8d7793b0ef044af2f57a1faa91efafd36396417e462178a133"
+      ]
+    },
+    {
+      "id": "q8",
+      "question": "Node.js 直接用 pipe 时中间流报错为什么可能泄漏资源，生产代码应该换成什么？",
+      "relevantChunkIds": [
+        "sha256:18b9b256b4369a9858130a18527ecf1b9eaa0506559798dd3dc8f07a8d257203",
+        "sha256:917a373f0afafee20f62413b995d167cb1fd56c3066dccce5656cabefc37ef89"
+      ]
+    },
+    {
+      "id": "q9",
+      "question": "为什么 AI 聊天产品常用 SSE，而不是等完整 JSON 生成后再一次返回？",
+      "relevantChunkIds": [
+        "sha256:8c2ad7d5b5b8be60bf4e421e3315b95796855693f528d574696671c71aec8f96"
+      ]
+    },
+    {
+      "id": "q10",
+      "question": "Node SSE 服务放到 Nginx 后面不再逐字输出，应该关闭哪些缓冲或缓存配置？",
+      "relevantChunkIds": [
+        "sha256:490afc597ce2d128fca56b96825a288bd014d4d2e25dcb2cd71d1f26ac1bab2f"
+      ]
+    },
+    {
+      "id": "q11",
+      "question": "RAG 入库和查询时可以使用不同的 embedding 模型或向量维度吗？",
+      "relevantChunkIds": [
+        "sha256:b4efb7357142ebcf78e789c463ebbebda4eb01696693daadef8407eef9a0c1a5"
+      ]
+    },
+    {
+      "id": "q12",
+      "question": "文档切片为什么要保留 overlap，并尽量沿着标点或标题等语义边界切分？",
+      "relevantChunkIds": [
+        "sha256:cd83a3352efdbc3e1f4bda07873187bb43913dbeb6f1c3f86480bcf35c290719"
+      ]
+    },
+    {
+      "id": "q13",
+      "question": "模型返回 tool_calls 后，后端执行结果怎样和原调用 ID 对齐再交还给模型？",
+      "relevantChunkIds": [
+        "sha256:d6c732b8f1d737deed0074e25529abbda90bab812e806c4e81e76f7ac3e51a53"
+      ]
+    },
+    {
+      "id": "q14",
+      "question": "一个 MCP Server 除了 tools 还能暴露哪两类能力，Host、Client、Server 分别负责什么？",
+      "relevantChunkIds": [
+        "sha256:ee5c50f795e8a27f0f81cf35d797990f43eda89125c970cfa18c5daa0b6ec9bd"
+      ]
+    },
+    {
+      "id": "q15",
+      "question": "向量检索为什么不擅长跨实体的多跳关系问题，GraphRAG 可以怎样解决？",
+      "relevantChunkIds": [
+        "sha256:cef8d04da48fe4dd989caf3c9254024c65a88e6dbb6cdbac5aecb0f13a5d7158"
+      ]
+    },
+    {
+      "id": "q16",
+      "question": "LangGraph 的短期记忆和长期记忆分别解决什么问题，compile 时各自传入什么组件？",
+      "relevantChunkIds": [
+        "sha256:83f5fdf4f3dbfa8e24f6dc1f004d6b820f472b46cd908f51208735f21331e018",
+        "sha256:a6839a26dcd2efa0b6979613600ae5ae2e1cf314fec7c98f9aec2eebd8a0d3e0"
+      ]
+    },
+    {
+      "id": "q17",
+      "question": "想从历史检查点修改状态并探索新的执行分支，replay 和 fork 有什么区别？",
+      "relevantChunkIds": [
+        "sha256:810fdd8c8a4d043dbfdfffe2d5eb3360cc90cc287ed4829efa5579f4e27deab8",
+        "sha256:ec1f9beaeb2fdd2ca6d4dcac45ba5f1d0ea30799e44567115cceaf2a7233ef90"
+      ]
+    },
+    {
+      "id": "q18",
+      "question": "LangGraph 工作流崩溃恢复时，怎么避免随机数、文件写入和 API 请求被重复执行？",
+      "relevantChunkIds": [
+        "sha256:cf4ff7ed808239d16273c98f9da13dd685da4f5f32523319572607f00c396462"
+      ]
+    },
+    {
+      "id": "q19",
+      "question": "Agent 的工具太多、不能全部塞进上下文时，怎样根据用户问题动态选择少量工具？",
+      "relevantChunkIds": [
+        "sha256:494cc376fb88581252abf695820cf23906ad8dc9c25ba14a37b3b1dc1cc4d0ce"
+      ]
+    },
+    {
+      "id": "q20",
+      "question": "ReAct 是什么，它怎样把 reasoning、action 和 observation 串成循环？",
+      "relevantChunkIds": [
+        "sha256:94cc2c5a971f8d2c1ac5e80c857f3c3f35b425493d892616a643757c4f544904"
+      ]
+    }
+  ]
+}

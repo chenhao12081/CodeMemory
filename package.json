@@ -5,13 +5,14 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "node --test src/retrieval/*.test.ts src/corpus/*.test.ts",
+    "test": "node --test src/retrieval/*.test.ts src/corpus/*.test.ts src/evals/*.test.ts",
     "start": "node src/graph/index.ts",
     "corpus:version": "node src/graph/split.ts --version-only",
     "corpus:rebuild": "node src/graph/split.ts --replace-corpus",
     "setup:retrieval-indexes": "node src/database/setup-retrieval-indexes.ts",
     "eval:intent": "node src/evals/intent.ts",
     "eval:intent:base": "node src/evals/intent.ts --model qwen2.5",
+    "eval:retrieval": "node src/evals/retrieval.ts",
     "generate:intent-data": "node src/data/generate-intent-dataset.ts"
   },
   "keywords": [],
