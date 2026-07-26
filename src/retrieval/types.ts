@@ -10,6 +10,25 @@ export type RetrievalCandidate = {
     metadata?: Record<string, unknown>;
 };
 
+export type RetrievalChannelResult = {
+    candidates: RetrievalCandidate[];
+    latencyMs: number;
+    error?: string;
+};
+
+export type RetrievalChannelResults = Record<
+    RetrievalChannel,
+    RetrievalChannelResult
+>;
+
+export type RetrievalStageTimings = {
+    recallMs: number;
+    fusionMs: number;
+    chunkLookupMs: number;
+    rerankMs: number;
+    totalMs: number;
+};
+
 export type RetrievalChannelHit = {
     rank: number;
     rawScore: number;

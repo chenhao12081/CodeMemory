@@ -6,8 +6,9 @@ import { TextLoader } from "@langchain/classic/document_loaders/fs/text";
 import { RecursiveCharacterTextSplitter } from "@langchain/classic/text_splitter";
 import { Document } from "langchain";
 import { Pinecone } from "@pinecone-database/pinecone";
-import { saveChunksToDB } from "../tools/database.ts";
+import { replaceChunksInDB } from "../tools/database.ts";
 import type { DocumentChunk } from "../tools/database.ts";
+import pool from "../database/db.ts";
 import {
     CHUNK_IDENTITY_SCHEMA_VERSION,
     createCorpusVersion,
@@ -20,7 +21,14 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const pc = new Pinecone({
     apiKey: String(process.env.PINECONE_API_KEY),
 })
-const index = pc.index('rag-index');
+const pineconeIndexName = process.env.PINECONE_INDEX_NAME?.trim();
+if (!pineconeIndexName) {
+    throw new Error("PINECONE_INDEX_NAME 不能为空");
+}
+const index = pc.index(pineconeIndexName);
+const DEFAULT_NAMESPACE = "__default__";
+const PINECONE_CONSISTENCY_TIMEOUT_MS = 60_000;
+const PINECONE_CONSISTENCY_POLL_MS = 1_000;
 
 type PreparedChunk = {
     chunkId: string;
@@ -81,6 +89,42 @@ function prepareCorpus(chunks: readonly Document[]) {
         corpusVersion,
         duplicateCount: chunks.length - preparedChunks.length,
     };
+}
+
+function defaultNamespaceRecordCount(namespaces: unknown): number {
+    if (
+        typeof namespaces !== "object"
+        || namespaces === null
+        || !(DEFAULT_NAMESPACE in namespaces)
+    ) {
+        return 0;
+    }
+
+    const namespace = (namespaces as Record<string, unknown>)[DEFAULT_NAMESPACE];
+    if (typeof namespace !== "object" || namespace === null) {
+        return 0;
+    }
+
+    const recordCount = (namespace as Record<string, unknown>).recordCount;
+    return typeof recordCount === "number" ? recordCount : 0;
+}
+
+async function waitForPineconeRecordCount(expectedCount: number): Promise<void> {
+    const deadline = Date.now() + PINECONE_CONSISTENCY_TIMEOUT_MS;
+
+    while (Date.now() < deadline) {
+        const stats = await index.describeIndexStats();
+        const currentCount = defaultNamespaceRecordCount(stats.namespaces);
+        if (currentCount === expectedCount) {
+            return;
+        }
+        await new Promise((resolve) => setTimeout(resolve, PINECONE_CONSISTENCY_POLL_MS));
+    }
+
+    throw new Error(
+        `等待 Pinecone 记录数变为 ${expectedCount} 超时，` +
+        `请检查 ${pineconeIndexName} 默认 namespace`,
+    );
 }
 
 function splitByMarkdownHeaders(content: string) {
@@ -232,6 +276,11 @@ async function main() {
     if (process.argv.includes("--version-only")) {
         return;
     }
+    if (!process.argv.includes("--replace-corpus")) {
+        throw new Error(
+            "稳定 ID 入库必须显式使用 --replace-corpus，避免与旧 doc-* 数据混写",
+        );
+    }
     // console.log("\n--- 前 2 个 Chunk 示例 ---");
     for (let i = 0; i < Math.min(2, allChunks.length); i++) {
         const chunk = allChunks[i];
@@ -254,9 +303,6 @@ async function main() {
         metadata: chunk.metadata,
     }));
 
-    await saveChunksToDB(documentChunks);
-    // console.log('✅ 切片数据已保存到 MySQL 数据库！');
-
     const pcRecords = preparedCorpus.chunks.map((chunk, index) => {
         const serializedMetadata: Record<string, string | number | boolean | string[]> = {
             chunk_index: index, // 与 MySQL document_chunks.chunk_index 一致，便于关联查询
@@ -272,6 +318,15 @@ async function main() {
             metadata: serializedMetadata,
         };
     });
+
+    console.log(
+        `准备替换 Pinecone 索引 ${pineconeIndexName} 的默认 namespace，` +
+        `以及 MySQL ${process.env.DB_DATABASE}.document_chunks`,
+    );
+    await index.deleteAll();
+    await waitForPineconeRecordCount(0);
+    console.log("已清空 Pinecone 默认 namespace");
+
     // 分批上传，每批 100 条，避免单次请求过大
     const BATCH_SIZE = 100;
     for (let i = 0; i < pcRecords.length; i += BATCH_SIZE) {
@@ -279,7 +334,18 @@ async function main() {
         await index.upsert({ records: batch });
         console.log(`✅ 已上传 ${Math.min(i + BATCH_SIZE, pcRecords.length)}/${pcRecords.length}`);
     }
-    console.log('✅ 全部存入成功！');
+    await waitForPineconeRecordCount(pcRecords.length);
+    console.log(`Pinecone 已写入并确认 ${pcRecords.length} 条稳定 ID 向量`);
+
+    await replaceChunksInDB(documentChunks);
+    console.log(`✅ 语料重建完成，corpusVersion：${preparedCorpus.corpusVersion}`);
 }
 
-main();
+main()
+    .catch((error: unknown) => {
+        console.error(error instanceof Error ? error.message : error);
+        process.exitCode = 1;
+    })
+    .finally(async () => {
+        await pool.end();
+    });

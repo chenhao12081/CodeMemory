@@ -52,3 +52,38 @@ export async function saveChunksToDB(chunks: DocumentChunk[]) {
         throw error;
     }
 }
+
+export async function replaceChunksInDB(chunks: DocumentChunk[]) {
+    if (!chunks || chunks.length === 0) {
+        throw new Error("不能使用空语料替换 document_chunks");
+    }
+
+    const connection = await pool.getConnection();
+    const values = chunks.map(chunk => [
+        chunk.document_id,
+        chunk.chunk_index,
+        chunk.content,
+        JSON.stringify(chunk.metadata),
+        buildHeadingText(chunk.metadata),
+    ]);
+    const sql = `
+        INSERT INTO document_chunks
+        (document_id, chunk_index, content, metadata, heading_text)
+        VALUES ?
+    `;
+
+    try {
+        await connection.beginTransaction();
+        await connection.query("DELETE FROM document_chunks");
+        const [result] = await connection.query<ResultSetHeader>(sql, [values]);
+        await connection.commit();
+        console.log(`已用 ${result.affectedRows} 条稳定 ID 切片替换 MySQL 语料`);
+        return result.affectedRows;
+    } catch (error) {
+        await connection.rollback();
+        console.error("替换 MySQL 语料失败，事务已回滚：", error);
+        throw error;
+    } finally {
+        connection.release();
+    }
+}

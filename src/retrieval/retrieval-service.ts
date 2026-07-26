@@ -1,4 +1,6 @@
+import { performance } from "node:perf_hooks";
 import { findLatestChunksByDocumentIds } from "./chunk-repository.ts";
+import { retrieveChannelsWithTrace } from "./channel-runner.ts";
 import { retrievalConfig } from "./config.ts";
 import { retrieveDenseCandidates } from "./dense-retriever.ts";
 import { weightedReciprocalRankFusion } from "./fusion.ts";
@@ -11,9 +13,9 @@ import {
     rerankCandidates,
 } from "./reranker.ts";
 import type {
-    RetrievalCandidate,
     RetrievalChannel,
     RerankerStatus,
+    RetrievalStageTimings,
 } from "./types.ts";
 
 function errorMessage(error: unknown): string {
@@ -21,45 +23,44 @@ function errorMessage(error: unknown): string {
 }
 
 export async function retrieveFromMultipleChannels(question: string) {
-    const settledResults = await Promise.allSettled([
-        retrieveDenseCandidates(question, retrievalConfig.denseTopK),
-        retrieveSparseCandidates(question, retrievalConfig.sparseTopK),
-        retrieveHeadingCandidates(question, retrievalConfig.headingTopK),
-    ]);
-    const channelOrder: RetrievalChannel[] = ["dense", "sparse", "heading"];
-    const resultSets: RetrievalCandidate[][] = [];
-    const counts: Record<RetrievalChannel, number> = {
-        dense: 0,
-        sparse: 0,
-        heading: 0,
-    };
-    const errors: unknown[] = [];
-
-    settledResults.forEach((result, index) => {
-        const channel = channelOrder[index];
-        if (result.status === "fulfilled") {
-            counts[channel] = result.value.length;
-            resultSets.push(result.value);
-            return;
-        }
-
-        errors.push(result.reason);
-        console.error(`${channel} 召回不可用：${errorMessage(result.reason)}`);
+    const totalStartedAt = performance.now();
+    const recall = await retrieveChannelsWithTrace({
+        dense: () => retrieveDenseCandidates(question, retrievalConfig.denseTopK),
+        sparse: () => retrieveSparseCandidates(question, retrievalConfig.sparseTopK),
+        heading: () => retrieveHeadingCandidates(question, retrievalConfig.headingTopK),
     });
+    const { channelResults } = recall;
+    const counts = Object.fromEntries(
+        Object.entries(channelResults).map(([channel, result]) => [
+            channel,
+            result.candidates.length,
+        ]),
+    ) as Record<RetrievalChannel, number>;
 
-    if (errors.length === settledResults.length) {
-        throw new AggregateError(errors, "所有检索通道均不可用");
+    for (const failure of recall.failures) {
+        console.error(`${failure.channel} 召回不可用：${errorMessage(failure.error)}`);
+    }
+    if (recall.failures.length === Object.keys(channelResults).length) {
+        throw new AggregateError(
+            recall.failures.map(({ error }) => error),
+            "所有检索通道均不可用",
+        );
     }
 
+    const fusionStartedAt = performance.now();
     const fusedCandidates = weightedReciprocalRankFusion(
-        resultSets,
+        Object.values(channelResults).map(({ candidates }) => candidates),
         retrievalConfig.weights,
         retrievalConfig.rrfK,
         retrievalConfig.fusionTopK,
     );
+    const fusionMs = performance.now() - fusionStartedAt;
+
+    const chunkLookupStartedAt = performance.now();
     const chunksByDocumentId = await findLatestChunksByDocumentIds(
         fusedCandidates.map((candidate) => candidate.documentId),
     );
+    const chunkLookupMs = performance.now() - chunkLookupStartedAt;
     const candidatesWithChunks = fusedCandidates
         .slice(0, retrievalConfig.rerankerTopK)
         .filter((candidate) => chunksByDocumentId.has(candidate.documentId));
@@ -69,6 +70,7 @@ export async function retrieveFromMultipleChannels(question: string) {
         model: retrievalConfig.rerankerModel,
     };
 
+    const rerankStartedAt = performance.now();
     if (retrievalConfig.rerankerEnabled && candidatesWithChunks.length > 0) {
         try {
             rankedCandidates = await rerankCandidates(
@@ -85,12 +87,24 @@ export async function retrieveFromMultipleChannels(question: string) {
             }
         }
     }
+    const rerankMs = retrievalConfig.rerankerEnabled && candidatesWithChunks.length > 0
+        ? performance.now() - rerankStartedAt
+        : 0;
+    const timings: RetrievalStageTimings = {
+        recallMs: recall.recallMs,
+        fusionMs,
+        chunkLookupMs,
+        rerankMs,
+        totalMs: performance.now() - totalStartedAt,
+    };
 
     return {
         counts,
+        channelResults,
         fusedCandidates,
         rankedCandidates,
         chunksByDocumentId,
         reranker,
+        timings,
     };
 }

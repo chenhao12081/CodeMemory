@@ -22,7 +22,12 @@ export const retriveNode: GraphNode<typeof AgentState> = async (state) => {
         `三路召回：dense=${result.counts.dense}，sparse=${result.counts.sparse}，` +
         `heading=${result.counts.heading}；RRF 融合=${result.fusedCandidates.length}，` +
         `${rerankerSummary}；` +
-        `上下文=${Math.min(retrievalConfig.contextTopK, result.rankedCandidates.length)}`,
+        `上下文=${Math.min(retrievalConfig.contextTopK, result.rankedCandidates.length)}；` +
+        `耗时：召回=${result.timings.recallMs.toFixed(1)}ms，` +
+        `融合=${result.timings.fusionMs.toFixed(1)}ms，` +
+        `回查=${result.timings.chunkLookupMs.toFixed(1)}ms，` +
+        `重排=${result.timings.rerankMs.toFixed(1)}ms，` +
+        `总计=${result.timings.totalMs.toFixed(1)}ms`,
     );
 
     return { context };
