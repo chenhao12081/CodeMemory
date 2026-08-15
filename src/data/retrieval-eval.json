@@ -142,6 +142,7 @@
       "id": "q19",
       "question": "Agent 的工具太多、不能全部塞进上下文时，怎样根据用户问题动态选择少量工具？",
       "relevantChunkIds": [
+        "sha256:6ac56a05220131aa993f8b3e1abdd36128062517e69ed975707b3f0f7a5dac50",
         "sha256:494cc376fb88581252abf695820cf23906ad8dc9c25ba14a37b3b1dc1cc4d0ce"
       ]
     },
@@ -149,6 +150,7 @@
       "id": "q20",
       "question": "ReAct 是什么，它怎样把 reasoning、action 和 observation 串成循环？",
       "relevantChunkIds": [
+        "sha256:9cbdb3e31da5d06cfcf35b40d0138f8746986be8665ffc16daceba4fb4759251",
         "sha256:94cc2c5a971f8d2c1ac5e80c857f3c3f35b425493d892616a643757c4f544904"
       ]
     }
