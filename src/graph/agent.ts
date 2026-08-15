@@ -122,6 +122,7 @@ ${state.context}`),
 
     return {
         messages: [response],
+        answerMode: 'rag_answer',
         output: String(response.content),
     };
 };
@@ -143,6 +144,7 @@ const generalChatNode: GraphNode<typeof AgentState> = async (state) => {
 
     return {
         messages: [new AIMessage(output)],
+        answerMode: isRagFallback ? 'rag_fallback' : 'direct_chat',
         output,
     };
 };

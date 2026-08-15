@@ -13,6 +13,7 @@
     "eval:intent": "node src/evals/intent.ts",
     "eval:intent:base": "node src/evals/intent.ts --model qwen2.5",
     "eval:retrieval": "node src/evals/retrieval.ts",
+    "eval:e2e": "node src/evals/e2e.ts",
     "generate:intent-data": "node src/data/generate-intent-dataset.ts"
   },
   "keywords": [],

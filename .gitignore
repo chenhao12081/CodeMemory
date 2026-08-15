@@ -143,3 +143,6 @@ vite.config.ts.timestamp-*
 .vite/
 src/static/
 eval-results/
+
+# Locally generated resume documents
+artifacts/

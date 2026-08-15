@@ -8,5 +8,7 @@ export const AgentState = new StateSchema({
     context: z.string().describe('记录检索到的上下文'),
     retrievalStatus: z.enum(['sufficient', 'insufficient']).describe('检索证据是否足以回答问题'),
     retrievalReason: z.string().describe('检索证据判定原因'),
+    answerMode: z.enum(['direct_chat', 'rag_answer', 'rag_fallback'])
+        .describe('最终答案经过的分支'),
     output: z.string().describe('llm输出'),
 });

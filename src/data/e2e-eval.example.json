@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "corpusVersion": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "cases": [
+    {
+      "id": "rag-example",
+      "question": "知识库内问题",
+      "expectedBranch": "rag_answer",
+      "relevantChunkIds": [
+        "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+      ],
+      "requiredFacts": [
+        "可选的关键评分点"
+      ]
+    },
+    {
+      "id": "fallback-example",
+      "question": "属于知识库主题但资料没有覆盖的具体问题",
+      "expectedBranch": "rag_fallback",
+      "criteria": [
+        "明确说明知识库证据不足",
+        "通用知识回答应准确"
+      ]
+    },
+    {
+      "id": "chat-example",
+      "question": "把这句话改得更礼貌：重做",
+      "expectedBranch": "direct_chat",
+      "criteria": [
+        "保持原意",
+        "语气礼貌"
+      ]
+    }
+  ]
+}

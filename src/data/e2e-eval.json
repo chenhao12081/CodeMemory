@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "corpusVersion": "sha256:4f0eee462d1ad9e35ca2b1db7c12bee906a7cd26bcf75cbb01f096903839f6fa",
+  "cases": [
+    {
+      "id": "rag-overlap",
+      "question": "文档切片为什么要保留 overlap，并尽量沿着标点或标题等语义边界切分？",
+      "expectedBranch": "rag_answer",
+      "relevantChunkIds": [
+        "sha256:cd83a3352efdbc3e1f4bda07873187bb43913dbeb6f1c3f86480bcf35c290719"
+      ],
+      "requiredFacts": [
+        "相邻切片保留重叠可以避免完整语义在边界被截断",
+        "应优先按照标点或文档结构等语义边界切分"
+      ]
+    },
+    {
+      "id": "rag-tool-result",
+      "question": "模型返回 tool_calls 后，后端执行结果怎样和原调用 ID 对齐再交还给模型？",
+      "expectedBranch": "rag_answer",
+      "relevantChunkIds": [
+        "sha256:d6c732b8f1d737deed0074e25529abbda90bab812e806c4e81e76f7ac3e51a53"
+      ],
+      "requiredFacts": [
+        "工具结果消息的 role 应为 tool",
+        "tool_call_id 必须与模型发起调用时返回的 id 一致",
+        "工具执行结果通常作为 JSON 字符串放入 content"
+      ]
+    },
+    {
+      "id": "rag-mcp",
+      "question": "一个 MCP Server 除了 tools 还能暴露哪两类能力，Host、Client、Server 分别负责什么？",
+      "expectedBranch": "rag_answer",
+      "relevantChunkIds": [
+        "sha256:ee5c50f795e8a27f0f81cf35d797990f43eda89125c970cfa18c5daa0b6ec9bd"
+      ],
+      "requiredFacts": [
+        "MCP Server 还可以暴露 Resources 和 Prompts",
+        "Host 是大模型应用本身",
+        "Client 位于 Host 内部并负责与 Server 通信",
+        "Server 负责连接具体数据源或 API"
+      ]
+    },
+    {
+      "id": "rag-memory",
+      "question": "LangGraph 的短期记忆和长期记忆分别解决什么问题，compile 时各自传入什么组件？",
+      "expectedBranch": "rag_answer",
+      "relevantChunkIds": [
+        "sha256:83f5fdf4f3dbfa8e24f6dc1f004d6b820f472b46cd908f51208735f21331e018",
+        "sha256:a6839a26dcd2efa0b6979613600ae5ae2e1cf314fec7c98f9aec2eebd8a0d3e0"
+      ],
+      "requiredFacts": [
+        "短期记忆服务于同一线程内的多轮对话，通过 checkpointer 配置",
+        "长期记忆保存跨会话的用户或应用数据，通过 store 配置"
+      ]
+    },
+    {
+      "id": "rag-time-travel",
+      "question": "想从历史检查点修改状态并探索新的执行分支，replay 和 fork 有什么区别？",
+      "expectedBranch": "rag_answer",
+      "relevantChunkIds": [
+        "sha256:810fdd8c8a4d043dbfdfffe2d5eb3360cc90cc287ed4829efa5579f4e27deab8",
+        "sha256:ec1f9beaeb2fdd2ca6d4dcac45ba5f1d0ea30799e44567115cceaf2a7233ef90"
+      ],
+      "requiredFacts": [
+        "replay 使用历史检查点配置重新执行",
+        "fork 使用 updateState 从历史检查点创建新的状态分支",
+        "fork 不会覆盖原始执行历史"
+      ]
+    },
+    {
+      "id": "rag-vector-docstore",
+      "question": "Pinecone 的 metadata 放不下大段原文时，向量和 chunk 正文应该怎么分开存？",
+      "expectedBranch": "rag_answer",
+      "relevantChunkIds": [
+        "sha256:887defa94fa9de732de11a347998f78c930994bdaf2d7221b61bb72a9b74bc75"
+      ],
+      "requiredFacts": [
+        "向量数据库只保存向量、过滤元数据和 doc_id",
+        "正文保存在文档数据库中",
+        "检索先获得 doc_id，再回查完整 chunk"
+      ]
+    },
+    {
+      "id": "fallback-langgraph-mongodb",
+      "question": "LangGraph 怎样把 checkpoint 保存到 MongoDB，初始化 MongoDBSaver 时连接池应该怎么配置？",
+      "expectedBranch": "rag_fallback",
+      "criteria": [
+        "知识库没有 MongoDBSaver 的配置资料时必须明确降级",
+        "不得把 MemorySaver 或 PostgresSaver 的用法冒充 MongoDBSaver",
+        "通用知识部分对不确定的包名或参数应明确说明"
+      ]
+    },
+    {
+      "id": "fallback-pinecone-hybrid",
+      "question": "Pinecone 的 dense+sparse hybrid search 如何创建索引并调整 alpha 权重？",
+      "expectedBranch": "rag_fallback",
+      "criteria": [
+        "知识库只有 Pinecone 稠密检索示例时应判定证据不足",
+        "不得声称答案来自知识库",
+        "通用回答应区分 dense 与 sparse 分数融合"
+      ]
+    },
+    {
+      "id": "fallback-vercel-transcribe",
+      "question": "Vercel AI SDK 如何调用语音转文字模型，并返回逐段转写时间戳？",
+      "expectedBranch": "rag_fallback",
+      "criteria": [
+        "知识库没有语音转写资料时应明确降级",
+        "不得用 streamText 的文本生成示例冒充语音转写接口",
+        "不确定具体 API 时不能虚构方法名"
+      ]
+    },
+    {
+      "id": "chat-rewrite",
+      "question": "把这句话改得更礼貌：你这个方案不行，全部重做。",
+      "expectedBranch": "direct_chat",
+      "criteria": [
+        "保持需要修改方案的原意",
+        "去除攻击性或命令式语气",
+        "输出简洁自然"
+      ]
+    },
+    {
+      "id": "chat-birthday",
+      "question": "用一句话祝同事生日快乐，语气真诚但不要太正式。",
+      "expectedBranch": "direct_chat",
+      "criteria": [
+        "只使用一句话",
+        "包含生日祝福",
+        "语气真诚且不过度正式"
+      ]
+    },
+    {
+      "id": "chat-translate",
+      "question": "把 “Thank you for your patience.” 翻译成自然中文。",
+      "expectedBranch": "direct_chat",
+      "requiredFacts": [
+        "表达感谢对方耐心等待或耐心配合的含义"
+      ],
+      "criteria": [
+        "中文表达自然",
+        "不增加原句没有的信息"
+      ]
+    }
+  ]
+}
