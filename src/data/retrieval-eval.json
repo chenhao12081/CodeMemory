@@ -153,6 +153,612 @@
         "sha256:9cbdb3e31da5d06cfcf35b40d0138f8746986be8665ffc16daceba4fb4759251",
         "sha256:94cc2c5a971f8d2c1ac5e80c857f3c3f35b425493d892616a643757c4f544904"
       ]
+    },
+    {
+      "id": "q21",
+      "question": "自注意力中的 Q、K、V 分别参与什么计算，为什么点积后还要除以 √dk 并经过 softmax？",
+      "relevantChunkIds": [
+        "sha256:f258d76d521e4b53a69b166d62e913e0fb0c2d72efb2db2444e01f0bcfe6e3bc",
+        "sha256:1be7286605f8fce9102e0a4b71365d4b8d848c1bf2fe5eb825c044986dda3460",
+        "sha256:c05e36010113e09f3c420025bd88e3e86b8b1c94ae0ca5d687292a1c3a9e2a46"
+      ]
+    },
+    {
+      "id": "q22",
+      "question": "多头注意力之后为什么还需要残差连接、归一化和前馈网络？",
+      "relevantChunkIds": [
+        "sha256:1be7286605f8fce9102e0a4b71365d4b8d848c1bf2fe5eb825c044986dda3460"
+      ]
+    },
+    {
+      "id": "q23",
+      "question": "Transformer 编码器和解码器如何协作进行自回归翻译，BOS 和已生成 token 分别起什么作用？",
+      "relevantChunkIds": [
+        "sha256:83464321d105156a0a568c8cd366498e12b98449b0e33dd66647dbfeec591bfb",
+        "sha256:30c2696df03aab296532e216416b75906bbbc88ad0df2ece08c984903b07e426"
+      ]
+    },
+    {
+      "id": "q24",
+      "question": "经典 Transformer 由哪些部分组成，DeepSeek 这类模型是否必须同时使用编码器和解码器？",
+      "relevantChunkIds": [
+        "sha256:2c3e123a1e44a8f7a423442dfd58017ab4ecf80188aeaff8808434504a585a38",
+        "sha256:30c2696df03aab296532e216416b75906bbbc88ad0df2ece08c984903b07e426"
+      ]
+    },
+    {
+      "id": "q25",
+      "question": "Temperature、Top_p、Max Length、Stop Sequences、Frequency Penalty 和 Presence Penalty 分别控制什么？",
+      "relevantChunkIds": [
+        "sha256:7cfbbf26e895c0852e08c32efe3d2016afe153c5a0daca3cee78d6c1ab87e59f"
+      ]
+    },
+    {
+      "id": "q26",
+      "question": "零样本提示和少样本提示有什么区别，提供标签示例为什么可能改善模型输出？",
+      "relevantChunkIds": [
+        "sha256:b3718c2332b48aefc17bf8362a6cc553daa55dc67a879b51da676bced45881cf"
+      ]
+    },
+    {
+      "id": "q27",
+      "question": "Prompt Chaining 怎样把撰写技术文章拆成流水线，它为什么能降低复杂任务的逻辑压力？",
+      "relevantChunkIds": [
+        "sha256:ad2ffbcc9430bb51449d0e39127b9d8b7411767d74219907333305627ec1d4d4"
+      ]
+    },
+    {
+      "id": "q28",
+      "question": "思维树怎样为复杂问题生成多个候选分支，并通过评估决定继续探索哪条路径？",
+      "relevantChunkIds": [
+        "sha256:9cbdb3e31da5d06cfcf35b40d0138f8746986be8665ffc16daceba4fb4759251"
+      ]
+    },
+    {
+      "id": "q29",
+      "question": "指令微调中的 prompt-completion pairs 是什么，为什么能改善模型执行特定任务的能力？",
+      "relevantChunkIds": [
+        "sha256:1e4af22798e0409eb107227e74b4d37e6995e527f763eefc7b2d4211b778ab2f"
+      ]
+    },
+    {
+      "id": "q30",
+      "question": "多任务指令微调如何缓解灾难性遗忘，它相对于单任务微调的主要数据成本是什么？",
+      "relevantChunkIds": [
+        "sha256:e0804aad78c9b133d92f2a31fcdea4a577d6398180dd8f312ff060bcf9d0f1e0",
+        "sha256:37f7a0776d3434a9dcf5e0fc6c568a318b599bb5cd3c8eaeb22d178e8774d8a5"
+      ]
+    },
+    {
+      "id": "q31",
+      "question": "RLHF 主要解决什么问题，它与预训练后的“后学习”和模型对齐是什么关系？",
+      "relevantChunkIds": [
+        "sha256:50c694ae0d79607635379fe741148b235196c6ba49886895180acf5c11cd6eee",
+        "sha256:3f46ee5ae23570fd0e5c6eb31e589050bb1d370471164107816f8aef4438f6e7"
+      ]
+    },
+    {
+      "id": "q32",
+      "question": "GLUE、SUPERGLUE、MMLU 和 HELM 分别用于怎样的大模型基准评测？",
+      "relevantChunkIds": [
+        "sha256:2a7438429c00b7f4b3173898a9fcaec55e49eaf0c86373ca0e5834df764675d4"
+      ]
+    },
+    {
+      "id": "q33",
+      "question": "处理大文件时为什么应使用 Node.js 流而不是 fs.readFile，可读流和可写流分别扮演什么角色？",
+      "relevantChunkIds": [
+        "sha256:469b5659f2e2db2058e5370f99fc43cbe9b42b60e3f44f2dbd83d9088ba233c5"
+      ]
+    },
+    {
+      "id": "q34",
+      "question": "Node.js 可读流的流动模式和暂停模式有什么区别，分别怎样消费数据？",
+      "relevantChunkIds": [
+        "sha256:43c188b38f3b7796c64da0fa023eb7fe67595feb3545531f660ed72f01e4319b"
+      ]
+    },
+    {
+      "id": "q35",
+      "question": "SSE 消息为什么必须以空行结束，data、event、id 和 retry 字段分别有什么作用？",
+      "relevantChunkIds": [
+        "sha256:33ebf1ea1091e7aec004014ed325845c54d25dd9adf47cc07db653000d6488ba"
+      ]
+    },
+    {
+      "id": "q36",
+      "question": "Node.js SSE 接口在浏览器主动断开连接时，为什么要监听 close 并清理定时器？",
+      "relevantChunkIds": [
+        "sha256:5c1efbcc61009f62f64b7a1d9c2571514d495f07d6d3a984ed246793785dd5e1"
+      ]
+    },
+    {
+      "id": "q37",
+      "question": "Vercel AI SDK 的官方 Provider、Gateway 和社区 Provider 有什么区别？",
+      "relevantChunkIds": [
+        "sha256:e84c8e7d358c5c79fdf24c05779888e5f51a2cd4d0dbc089d78afb71c58baebc"
+      ]
+    },
+    {
+      "id": "q38",
+      "question": "streamText 如何统一不同模型厂商的流式返回，Express 接收前端 messages 时为什么还要调用 convertToModelMessages？",
+      "relevantChunkIds": [
+        "sha256:68ecae6d0de37eced2147b12eb1162e5a9e2351c06395431e2bc57bdc26bcdc9"
+      ]
+    },
+    {
+      "id": "q39",
+      "question": "前后端跨域使用 Vercel AI SDK 数据流时，为什么要暴露 x-vercel-ai-data-stream 响应头？",
+      "relevantChunkIds": [
+        "sha256:9db586dffdcc607efeab1f1323a6274b234fcae6e5cf5bb768cd89a08de6cb1a"
+      ]
+    },
+    {
+      "id": "q40",
+      "question": "TextStreamChatTransport 和 DefaultChatTransport 应分别配合哪种服务端流格式？",
+      "relevantChunkIds": [
+        "sha256:c472f9419ba6a72778fa2f1e394587a583ca3ba8c0aa94f80f8053c6ec3c30f7"
+      ]
+    },
+    {
+      "id": "q41",
+      "question": "streamText 的 onFinish 能获得哪些信息，可用于持久化、计费和调试哪些场景？",
+      "relevantChunkIds": [
+        "sha256:be71912799ff5681aafa5cf9b0329e2e4cee3ff8d0c59076cc239b425817e4f1",
+        "sha256:f0234af767bf5c548f257a5676b324581f8125137f1660d4f5b0cbd358615603"
+      ]
+    },
+    {
+      "id": "q42",
+      "question": "generateObject 与 generateText 配合 Output.object 有什么区别，Zod Schema 在结构化输出中起什么作用？",
+      "relevantChunkIds": [
+        "sha256:eeb153c25fa8449ad1dee158fd0f6e3d5958051ba423ea66b910fb476daa2f6d",
+        "sha256:a7432ff975ce223083d04b03126f3341a5b4f2d850b75267e31e598f9cb9b023"
+      ]
+    },
+    {
+      "id": "q43",
+      "question": "Node.js 读取 Markdown 后怎样用 unified 和 remark-parse 将字符串转换为 AST？",
+      "relevantChunkIds": [
+        "sha256:c13b8a3bd54aea967349085a455497a8ace3b8d5e32d01d8a3cd57d44eb46c67",
+        "sha256:c3e9fd20d922a33a092eb1a21af9c41f764a96eabd48060965fc5f7205af14b0"
+      ]
+    },
+    {
+      "id": "q44",
+      "question": "Node.js 读取 Excel 二进制文件后，怎样用 xlsx 将第一个工作表转换为 JSON？",
+      "relevantChunkIds": [
+        "sha256:a3b133f3f3316eca81d8b50fd15b0152c3be47d41ef02b9fd61b8ad9fd6bcc14",
+        "sha256:d442de3d4dfdb4e6fa18e2ed390c20b0aac7f6a0ae6bf2605cf0bf4583031679"
+      ]
+    },
+    {
+      "id": "q45",
+      "question": "RAG 的 Retrieval、Augmented 和 Generation 三个阶段分别做什么，它主要解决大模型的哪些限制？",
+      "relevantChunkIds": [
+        "sha256:8e789bf1b8a69571da8aea3c52668eaeb4751bfe49ea45b02db3f78f8f89a2c0"
+      ]
+    },
+    {
+      "id": "q46",
+      "question": "RAG 中生成模型和 Embedding 模型分别负责什么，为什么一个 Chunk 可以被压缩成表示中心思想的向量？",
+      "relevantChunkIds": [
+        "sha256:b4efb7357142ebcf78e789c463ebbebda4eb01696693daadef8407eef9a0c1a5"
+      ]
+    },
+    {
+      "id": "q47",
+      "question": "Node.js 中想按语义边界递归切分文档，可以直接使用 LangChain 的哪个文本切分器？",
+      "relevantChunkIds": [
+        "sha256:f581fe68409c3ae3e6bae62190f9e10c7ccf1c27b3a009266018eb67bd7b43e4"
+      ]
+    },
+    {
+      "id": "q48",
+      "question": "使用 Ollama embed 接口批量生成向量时，input 怎样传入多个文本，如何确认返回了多少条 embedding？",
+      "relevantChunkIds": [
+        "sha256:6d7fbb8c3c46c78c2fd8fc2aea2a9e73319bec268fdbf5569335d14e8d995c3a"
+      ]
+    },
+    {
+      "id": "q49",
+      "question": "使用 bge-m3 创建 Pinecone 索引时，为什么应选择 dense、1024 维和 cosine？",
+      "relevantChunkIds": [
+        "sha256:b22a2e6667eb36806929b0d2b433795491c2362d4930e034cc64df08aa312846"
+      ]
+    },
+    {
+      "id": "q50",
+      "question": "Pinecone 查询为什么通常要设置 includeMetadata=true，topK 又控制什么？",
+      "relevantChunkIds": [
+        "sha256:8c6d9b4a7ec027656ccb0fb7502487b3cd4015cc1402bbaa31e95155a122db1a"
+      ]
+    },
+    {
+      "id": "q51",
+      "question": "向 Pinecone upsert 前为什么要检查 embedding 非空，Serverless 写入后为什么可能需要等待一致性？",
+      "relevantChunkIds": [
+        "sha256:d12f021cce23dedc138cdfed5386425e66708c78b2206dd75a2a99b923532192"
+      ]
+    },
+    {
+      "id": "q52",
+      "question": "一个最小 RAG 示例怎样完成知识入库、问题向量化、Pinecone 检索和增强提示生成？",
+      "relevantChunkIds": [
+        "sha256:1971f8a5190612260f87f176e1c019ed524f8d747fe7dc8e382df514ad0d499b",
+        "sha256:50b1a7548f0119f675a931c4aa9fcf4c6b24d2f66cbab22d50b3473f1a8a1250"
+      ]
+    },
+    {
+      "id": "q53",
+      "question": "本地使用 Ollama 和 bge-m3 生成单段文本向量时，需要配置哪些连接和模型参数？",
+      "relevantChunkIds": [
+        "sha256:4f7fa5c102c81b8d2c05f746cfd5bd199abc40dfe434a2b97eb602d221c9f3e3"
+      ]
+    },
+    {
+      "id": "q54",
+      "question": "Pinecone upsert 记录中的 id、values 和 metadata 分别保存什么内容？",
+      "relevantChunkIds": [
+        "sha256:d12f021cce23dedc138cdfed5386425e66708c78b2206dd75a2a99b923532192",
+        "sha256:b22a2e6667eb36806929b0d2b433795491c2362d4930e034cc64df08aa312846"
+      ]
+    },
+    {
+      "id": "q55",
+      "question": "一个 Agent 通常由大模型、工具和记忆组成，底层为什么本质上仍是 JSON 解析与本地函数执行循环？",
+      "relevantChunkIds": [
+        "sha256:0eddc48286f927afa73c7f94b65aaca332d923938b07efea8ada87cf94b59b5f"
+      ]
+    },
+    {
+      "id": "q56",
+      "question": "Agentic Workflow 怎样把复杂任务拆成多步操作，写文章时可以如何迭代调研、起草和修改？",
+      "relevantChunkIds": [
+        "sha256:6a4bea58762654ba508647a2f40d849a4314225935b31d3de41195d9b0e42d84"
+      ]
+    },
+    {
+      "id": "q57",
+      "question": "模型触发工具调用时返回的 tool_calls、id、arguments 和 content 各代表什么？",
+      "relevantChunkIds": [
+        "sha256:1f9f7a8950def61586981da71e8d25d37328d86b04ea95b0f84192a094814276"
+      ]
+    },
+    {
+      "id": "q58",
+      "question": "工具定义的 JSON Schema 中 name、description、properties、required 和 enum 分别怎样约束模型调用？",
+      "relevantChunkIds": [
+        "sha256:7cd6f85c61f3089d98f9b7419c23d6bc3e07f0c2dda17cf797234e4b35c75c45"
+      ]
+    },
+    {
+      "id": "q59",
+      "question": "不依赖高级 Agent 框架时，手动实现一次工具调用需要经历哪四个步骤？",
+      "relevantChunkIds": [
+        "sha256:f2715ad0666da698f0a5dbd4f73f904dae612cebb032f49afeddefaffcc4ddd7"
+      ]
+    },
+    {
+      "id": "q60",
+      "question": "Vercel AI SDK 的 generateText 默认为什么只执行一步，stopWhen 和 stepCountIs 怎样让工具调用继续多轮执行？",
+      "relevantChunkIds": [
+        "sha256:103485b9a713e88d81c64e40e9fc808edaa33c70c356b9ef122b7c132b60f4d1"
+      ]
+    },
+    {
+      "id": "q61",
+      "question": "Agent 的工具可以静态传入、从数据库检索或运行时创建，这三种方式分别有什么限制和风险？",
+      "relevantChunkIds": [
+        "sha256:3e68b28befabbdbd34cd34840af21c227333e818dc471a863ed80e08bca39c8e"
+      ]
+    },
+    {
+      "id": "q62",
+      "question": "Reflection 如何利用代码执行错误、外部搜索或工具结果改进模型输出，为什么外部反馈通常更可靠？",
+      "relevantChunkIds": [
+        "sha256:ec438b3aa03e100502f38a7a2eef9f9af8914785049158578f139801e1aab8fc"
+      ]
+    },
+    {
+      "id": "q63",
+      "question": "智能体的端到端评估和组件级评估分别关注什么，什么时候可以用代码指标或 LLM Judge？",
+      "relevantChunkIds": [
+        "sha256:1537d4b22bd77668af788a0289afed2638ac6f6389f8b6437a539aa73936f86b",
+        "sha256:7abe670adee5d0a662a59e9d25bedb96479af552e75368e1091cf72d0a385c4f"
+      ]
+    },
+    {
+      "id": "q64",
+      "question": "做 Agent 误差分析时，trace 和 span 分别表示什么，怎样据此确定下一步优化优先级？",
+      "relevantChunkIds": [
+        "sha256:7abe670adee5d0a662a59e9d25bedb96479af552e75368e1091cf72d0a385c4f"
+      ]
+    },
+    {
+      "id": "q65",
+      "question": "DAG 的“有向”和“无环”分别意味着什么，入度和出度如何描述节点依赖？",
+      "relevantChunkIds": [
+        "sha256:21ebbfabfca6877253b3d67497514fe132aa2104b61607ae515a402939e01479"
+      ]
+    },
+    {
+      "id": "q66",
+      "question": "知识图谱由实体、关系和属性怎样构成，它为什么比单纯向量检索更适合多跳关系问题？",
+      "relevantChunkIds": [
+        "sha256:cef8d04da48fe4dd989caf3c9254024c65a88e6dbb6cdbac5aecb0f13a5d7158"
+      ]
+    },
+    {
+      "id": "q67",
+      "question": "为什么说大模型本身并没有执行工具，后端需要怎样解析参数、调用函数并把结果再次交给模型？",
+      "relevantChunkIds": [
+        "sha256:0eddc48286f927afa73c7f94b65aaca332d923938b07efea8ada87cf94b59b5f",
+        "sha256:f2715ad0666da698f0a5dbd4f73f904dae612cebb032f49afeddefaffcc4ddd7"
+      ]
+    },
+    {
+      "id": "q68",
+      "question": "让 Agent 运行时自己生成代码有什么安全风险，为什么应放在沙箱而不是直接 eval？",
+      "relevantChunkIds": [
+        "sha256:3e68b28befabbdbd34cd34840af21c227333e818dc471a863ed80e08bca39c8e"
+      ]
+    },
+    {
+      "id": "q69",
+      "question": "LangChain 的 Message 由 role、content 和 metadata 组成时，HumanMessage、AIMessage、SystemMessage、ToolMessage 分别表示什么？",
+      "relevantChunkIds": [
+        "sha256:b6d893c4993ef4fcfe7bcc34e2533df517ec57b14d90e4d1d0adfbe659508592"
+      ]
+    },
+    {
+      "id": "q70",
+      "question": "LangChain 的 AIMessage 中怎样读取 tool_calls 和 usage_metadata？",
+      "relevantChunkIds": [
+        "sha256:00ad396c07ccedf53a23c8700501f66e8880a851f1fd19463729bd03ee93a40a"
+      ]
+    },
+    {
+      "id": "q71",
+      "question": "Message content 使用字符串、提供商原生内容块和 LangChain 标准内容块有什么区别，多模态消息怎样表示？",
+      "relevantChunkIds": [
+        "sha256:678db3b5755df3bfbb45d91b71b79ebdb98890e7fd12352fdfb935980a813bdc",
+        "sha256:0d63356f1684ec31d4936947e763b63edae91a8b7ccd6fb442c77401fe846350"
+      ]
+    },
+    {
+      "id": "q72",
+      "question": "LangChain 模型的 invoke 和 stream 返回形式有什么区别，流式 chunk 怎样合并为完整消息？",
+      "relevantChunkIds": [
+        "sha256:64c845013c12bf13443caff40164ca111af3afe77059760c5399119bb2b2e6fd",
+        "sha256:fbbe0f655f76c2f890dbd91ac45c003e60f88326ddc26ef4c44a79d08892ba68",
+        "sha256:cb2ce2fd8d3e097c5eb8315883d4393a09162771eae2128801667c19c4ce75f6"
+      ]
+    },
+    {
+      "id": "q73",
+      "question": "LangChain createAgent 相比仅给模型 bindTools，额外提供了哪些循环、并行、重试和状态能力？",
+      "relevantChunkIds": [
+        "sha256:a05340d22b48edd8f0b7440c59cd7acbce6cf482ffc5174061f0501a63fe6c6e"
+      ]
+    },
+    {
+      "id": "q74",
+      "question": "怎样根据 runtime context 中的用户角色动态生成不同的 Agent system prompt？",
+      "relevantChunkIds": [
+        "sha256:e215a3faf92f3e7bec137b8cc02aae05222ba54b8ac06531885ddfa8cf1498a1"
+      ]
+    },
+    {
+      "id": "q75",
+      "question": "LangChain Agent 的静态模型与动态模型选择有什么区别，怎样用 wrapModelCall 按对话状态切换模型？",
+      "relevantChunkIds": [
+        "sha256:9a65bf22425871a2e8ead270af55d10f5d815cb35e67bcbe146f5e41f71ff644",
+        "sha256:aa2be3be559d974eb0e7768fc8492ace6fd195fb14e7821ab107161a1aca1a58",
+        "sha256:ac813ad57f99827e31a23574cefd89ba008764f89a4ae33fb9e650adf437b481"
+      ]
+    },
+    {
+      "id": "q76",
+      "question": "LangChain Middleware 可以在哪些场景中用于日志、提示词转换、重试、限流和 PII 防护？",
+      "relevantChunkIds": [
+        "sha256:540d1db793eadbead0cae7439589ffcd81124bd73881e87331b340dd4d3eab5e"
+      ]
+    },
+    {
+      "id": "q77",
+      "question": "Node-style hooks 和 Wrap-style hooks 的执行方式有什么区别，更新 State 时分别怎样返回结果？",
+      "relevantChunkIds": [
+        "sha256:463333aee891f5a169be2cd170eaa03467b634f707c623f556b68ee7bd4bb5cc",
+        "sha256:007c0d84d188314f2b729174c42bad4b34c474bd5262f2eff0c1ba6dd8aa7131",
+        "sha256:4a99a87e69b78acfcacfe16f11c9851a22fda34d66b680a99c9bb6769cfa8a99"
+      ]
+    },
+    {
+      "id": "q78",
+      "question": "多个 Middleware 一起使用时，before、after 和 wrap 钩子的顺序与嵌套关系是什么？",
+      "relevantChunkIds": [
+        "sha256:740ba8e8fcdab27e9150bc9c09a2b42b48c3c32f8b5ebb80a669636cd40a1b94",
+        "sha256:7a76dd62c246af50cd35efe94d1cae3d2989946573705aa309357d85cdfd7428"
+      ]
+    },
+    {
+      "id": "q79",
+      "question": "wrapModelCall 或 wrapToolCall 中的 request 和 handler 分别是什么，怎样用于拦截、修改或重试调用？",
+      "relevantChunkIds": [
+        "sha256:3ea6130ba9a29d36bfd7548fcb8704ffebc871e08f1d4eb59636b279726677eb",
+        "sha256:4b203dee3d74d4c188cc69d5ee777b975b6ecbd418a3189521b749d924a7e419"
+      ]
+    },
+    {
+      "id": "q80",
+      "question": "自定义 Middleware State 怎样在钩子间共享计数器和标志，以下划线开头的私有字段为何不会出现在最终结果中？",
+      "relevantChunkIds": [
+        "sha256:649724266884cb10619a79d80e979c1a6bb4b3debb3e0e397b6a8bde8279c66a",
+        "sha256:b6450eaa64ecb627723e689f82581e16c3330cb216c082f284cb1a87b4774520",
+        "sha256:237841e8f1832922ea90d763e16775ec3ad0c4b7ca2c6b6bb92d1b604b0fb9ee"
+      ]
+    },
+    {
+      "id": "q81",
+      "question": "长对话的 Summarization Middleware 和高风险操作的 Human-in-the-loop Middleware 分别怎样工作？",
+      "relevantChunkIds": [
+        "sha256:b28ad90e7aae42fe4cda53f7a84439754b9734376fb7960baee3ea219861be93"
+      ]
+    },
+    {
+      "id": "q82",
+      "question": "运行时发现的新工具为什么需要同时使用 wrapModelCall 注册和 wrapToolCall 执行？",
+      "relevantChunkIds": [
+        "sha256:92b5c58d203c326ea7a65c6ab950f1ae1a83f329623e633d46287fa1d7c27512",
+        "sha256:e72d34386c67a407b3f69340cfb2d4d0bc42dad9fc9f1bd704b2931693071555"
+      ]
+    },
+    {
+      "id": "q83",
+      "question": "LangGraph 为什么适合构建长时间运行且有状态的 Agent，它的持久化执行、人在回路和记忆能力分别解决什么问题？",
+      "relevantChunkIds": [
+        "sha256:f5cc437df0ef92dec05c00c1afb016f945c5cbcbb1c5945403715c60c18c0540"
+      ]
+    },
+    {
+      "id": "q84",
+      "question": "LangGraph 的 Graph API 和 Function API 有什么区别，使用 StateGraph 构建工具 Agent 时怎样添加节点、条件边并 compile？",
+      "relevantChunkIds": [
+        "sha256:b3e6986b93a7e83f92349f0df581abb347a7d4c5511caa189e01dd1b0e673947",
+        "sha256:b9d613e19acd97d9003fc69c0b0ccaf27e99fc1736501ce1b597692c5394525e"
+      ]
+    },
+    {
+      "id": "q85",
+      "question": "StateSchema 中的 ReducedValue reducer 怎样合并节点更新，为什么消息和计数器通常需要不同的 reducer？",
+      "relevantChunkIds": [
+        "sha256:c9e17d1e7f7941bfeb4ef759ba41e0e91bb560b32fd91cc6c7411c907b1e26c2",
+        "sha256:9d20ace4c73d269500c14f8f651c0d0f1d1b52f44b24aaab54960f4d2e70976c",
+        "sha256:488edeca1fc85edb818416a2b7d28474eaff8c80fb723c92d355dcbe7e5893df"
+      ]
+    },
+    {
+      "id": "q86",
+      "question": "LangGraph 官方五步构建法怎样拆分节点、设计 State 和处理瞬态错误、LLM 可恢复错误及用户干预？",
+      "relevantChunkIds": [
+        "sha256:6b8f900963f03f86806b603986973580fdf17397bad2de894a41c5bcb0be1dd8",
+        "sha256:98d1f1985593b870c8c089bc29721d3683a3231fa003a0e53388c271b79cf161"
+      ]
+    },
+    {
+      "id": "q87",
+      "question": "LangGraph Checkpointer 如何按 thread 保存每一步的 StateSnapshot，它为什么是人在回路、记忆和时间旅行的基础？",
+      "relevantChunkIds": [
+        "sha256:9f5c9589b6e4b673c2bbf8f8901913992e782a55e770fee477cacdd85033b894",
+        "sha256:2477c77bc078fc4d9cdb8255b650f1a734a8096e5dde1410b37f1df9b03f6989"
+      ]
+    },
+    {
+      "id": "q88",
+      "question": "怎样使用 getState 和 getStateHistory 查看线程最新状态、指定检查点及完整执行历史？",
+      "relevantChunkIds": [
+        "sha256:b16bd3be1e6491c93b6b53623e81465ea311182807d4b11079b2fbd79ba7a4c3",
+        "sha256:6ace41d8661548b735d8704549c24f78275e70d488a29b5bcee77e9fc5ce2a9b",
+        "sha256:518d7d42e8339dbbaf7f91d00f4a1164365f28ac58ae68c7a977b6426ce00f92",
+        "sha256:fb8d8ae7a959b1c985d09d4d86f82fa177eb88e3330ef179dc49e4a9e51aff70",
+        "sha256:b9b3a9b68f1b948fa149bd62b616dd1fa1d5f620e2937e0db1d753ebd8f09b7e"
+      ]
+    },
+    {
+      "id": "q89",
+      "question": "BaseCheckpointSaver 需要实现哪些核心方法，put、putWrites、getTuple 和 list 分别负责什么？",
+      "relevantChunkIds": [
+        "sha256:6392dc55cee10c5546bed6340c17ef158d4f78ec2893644ea6a49a8867ee45cb",
+        "sha256:bd003cc23f6d5f3e62023f43428b46c254e22ccb012cae68cb6a1c86e0022ebc"
+      ]
+    },
+    {
+      "id": "q90",
+      "question": "为什么 Checkpointer 不能直接跨线程共享用户信息，什么时候需要额外使用 Store 和 namespace？",
+      "relevantChunkIds": [
+        "sha256:f9c66fb5b09bf9a2b2e68b5e280bb681998cfad69720c61254477489126408d2",
+        "sha256:56f75106a106501a8b7dedbd7a8381ed722ae5a69d422e5903c784a3108c458d"
+      ]
+    },
+    {
+      "id": "q91",
+      "question": "长对话中直接删除或裁剪旧消息有什么风险，trimMessages 与生成摘要分别适合什么情况？",
+      "relevantChunkIds": [
+        "sha256:3ab5609e4cd280be794a008a2a578866731c83c0496eb6f8f2ff2cc5d06592d9",
+        "sha256:8c49ab1dd00d958eef99d46e5f7ac9d302ba3aa2c6ce6d50a239f96bbf471f07"
+      ]
+    },
+    {
+      "id": "q92",
+      "question": "LangGraph 长期记忆怎样通过 namespace 和语义搜索找回与当前问题相关的用户记忆？",
+      "relevantChunkIds": [
+        "sha256:456ee011dcc34c0e38d4bd3e32de7cd35faaa6792c436a7afd4431e8ab0041e1",
+        "sha256:7f6dd15e969430ecd78005245c48c874d7ecf73fab67e40f21732eec9ab7bdde"
+      ]
+    },
+    {
+      "id": "q93",
+      "question": "怎样删除某个 thread 的全部检查点，生产环境使用数据库持久化前为什么还要执行迁移？",
+      "relevantChunkIds": [
+        "sha256:fb3581e600b504b605696acba2802d242265bde01fc1dccf48f1bbbf3063a2f9"
+      ]
+    },
+    {
+      "id": "q94",
+      "question": "一个节点包含多个外部请求时，为什么要把子操作包装成 task，恢复后怎样避免重复执行已成功请求？",
+      "relevantChunkIds": [
+        "sha256:123560e4b4e5739f0b2112f9973aa34883244b3770da858098e3c581a9427892"
+      ]
+    },
+    {
+      "id": "q95",
+      "question": "LangGraph 工作流恢复时，StateGraph 和 Functional API 分别从节点还是任务的哪个位置重新开始？",
+      "relevantChunkIds": [
+        "sha256:a6b17d11cf0ce9aa85a7fc0c70a175bc141f7dcbc107a56b8e23e8cceeaf677f"
+      ]
+    },
+    {
+      "id": "q96",
+      "question": "LangGraph streamMode 中 values 和 updates 有什么区别，为什么 updates 更适合观察单个节点的增量？",
+      "relevantChunkIds": [
+        "sha256:302554683422f4236ef473236ddad39031e70e639d24a6e1edf7bee0e78a6797",
+        "sha256:ae50600086a340645777dd99bc986a961766c2ca909b42a2c03d1679e223331b",
+        "sha256:bd5223175a0601345c5bad8b4fef2c383dafd1131cee3a43c47a5fcec77e60ac"
+      ]
+    },
+    {
+      "id": "q97",
+      "question": "messages 流模式怎样输出 LLM token，并按 langgraph_node 或模型 tags 过滤只需要的流？",
+      "relevantChunkIds": [
+        "sha256:509a0147f0ed6a86a8250940ff2a1ef4d11b84141c1bb9485a4b4746110ffca1",
+        "sha256:548c5197ab721b6aa71db2c7798db2d8b48f806025324e5d586fa74f58947ce9",
+        "sha256:9dc7ecd309d0b89001e50cd4c27a44c6154a59136cefee6c76bc4955d54a9f2c"
+      ]
+    },
+    {
+      "id": "q98",
+      "question": "怎样在 LangGraph 节点或工具内部通过 writer 发送自定义进度，并在调用端用 streamMode=custom 接收？",
+      "relevantChunkIds": [
+        "sha256:69822db66f9c0f2d98927544e5fb731586bbecaaa2ea71d1240a2bd053a678dd",
+        "sha256:20e8f69993c9d33d1a91cb0b23b468845354a571fe34b8dfd868d649a76aea09"
+      ]
+    },
+    {
+      "id": "q99",
+      "question": "子图的 per-invocation 和 per-thread 持久化模式有什么区别，独立请求和需要多轮记忆的子代理分别选哪种？",
+      "relevantChunkIds": [
+        "sha256:6adb47edd1738f9f054082f73711b2e0bfc4995b1dfdc46c34273bc2328e0df9",
+        "sha256:f4cf7afb4ce7e4e1ceed2745a59958c90fbfa4392bb94bc8d1f09d2b4285892c",
+        "sha256:06028af28ea5233494999d1fe3cdc0ac167fa7e7ced8b041485e334ae9051b17"
+      ]
+    },
+    {
+      "id": "q100",
+      "question": "什么时候应把子图编译为 checkpointer=false 的无状态模式，这会失去哪些暂停、恢复和持久化能力？",
+      "relevantChunkIds": [
+        "sha256:f20c9cc89217621f47889d3dc0e5d86d12354f6b402375b2a8c8366797786800"
+      ]
     }
   ]
 }
