@@ -2,6 +2,7 @@ import type { ResultSetHeader, RowDataPacket } from "mysql2/promise";
 import pool from "../database/db.ts";
 
 export interface DocumentChunk {
+    deployment_id: string;
     document_id: string;
     chunk_index: number;
     content: string;
@@ -10,6 +11,7 @@ export interface DocumentChunk {
 
 export interface DocumentChunkRow extends RowDataPacket {
     id: number;
+    deployment_id: string;
     document_id: string;
     chunk_index: number;
     content: string;
@@ -32,6 +34,7 @@ export async function saveChunksToDB(chunks: DocumentChunk[]) {
 
     try {
         const values = chunks.map(chunk => [
+            chunk.deployment_id,
             chunk.document_id,
             chunk.chunk_index,
             chunk.content,
@@ -40,7 +43,7 @@ export async function saveChunksToDB(chunks: DocumentChunk[]) {
         ]);
         const sql = `
             INSERT INTO document_chunks 
-            (document_id, chunk_index, content, metadata, heading_text)
+            (deployment_id, document_id, chunk_index, content, metadata, heading_text)
             VALUES ?
         `;
         const [result] = await pool.query<ResultSetHeader>(sql, [values]);
@@ -53,13 +56,19 @@ export async function saveChunksToDB(chunks: DocumentChunk[]) {
     }
 }
 
-export async function replaceChunksInDB(chunks: DocumentChunk[]) {
+export async function replaceChunksInDB(
+    deploymentId: string,
+    chunks: DocumentChunk[],
+) {
     if (!chunks || chunks.length === 0) {
         throw new Error("不能使用空语料替换 document_chunks");
     }
 
-    const connection = await pool.getConnection();
+    if (chunks.some((chunk) => chunk.deployment_id !== deploymentId)) {
+        throw new Error("写入的 chunk deployment_id 与目标 deployment 不一致");
+    }
     const values = chunks.map(chunk => [
+        chunk.deployment_id,
         chunk.document_id,
         chunk.chunk_index,
         chunk.content,
@@ -68,20 +77,26 @@ export async function replaceChunksInDB(chunks: DocumentChunk[]) {
     ]);
     const sql = `
         INSERT INTO document_chunks
-        (document_id, chunk_index, content, metadata, heading_text)
+        (deployment_id, document_id, chunk_index, content, metadata, heading_text)
         VALUES ?
     `;
+    const connection = await pool.getConnection();
 
     try {
         await connection.beginTransaction();
-        await connection.query("DELETE FROM document_chunks");
+        await connection.query(
+            "DELETE FROM document_chunks WHERE deployment_id = ?",
+            [deploymentId],
+        );
         const [result] = await connection.query<ResultSetHeader>(sql, [values]);
         await connection.commit();
-        console.log(`已用 ${result.affectedRows} 条稳定 ID 切片替换 MySQL 语料`);
+        console.log(
+            `已写入 deployment ${deploymentId} 的 ${result.affectedRows} 条稳定 ID 切片`,
+        );
         return result.affectedRows;
     } catch (error) {
         await connection.rollback();
-        console.error("替换 MySQL 语料失败，事务已回滚：", error);
+        console.error("写入 MySQL deployment 失败，事务已回滚：", error);
         throw error;
     } finally {
         connection.release();

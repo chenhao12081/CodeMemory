@@ -5,6 +5,7 @@ import type { RetrievalCandidate } from "./types.ts";
 export async function retrieveDenseCandidates(
     question: string,
     topK: number,
+    pineconeNamespace: string,
 ): Promise<RetrievalCandidate[]> {
     const embeddingModel = process.env.OLLAMA_EMBEDDING_MODEL?.trim() || "bge-m3";
     const embeddingResult = await ollama.embed({
@@ -12,7 +13,8 @@ export async function retrieveDenseCandidates(
         input: question,
     });
 
-    const searchResults = await index.query({
+    const targetIndex = pineconeNamespace ? index.namespace(pineconeNamespace) : index;
+    const searchResults = await targetIndex.query({
         vector: embeddingResult.embeddings[0],
         topK,
         includeMetadata: true,

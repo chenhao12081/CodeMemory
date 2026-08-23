@@ -30,29 +30,30 @@ async function retrieveFullTextCandidates({
     topK,
     column,
     channel,
+    deploymentId,
 }: {
     question: string;
     topK: number;
     column: FullTextColumn;
     channel: RetrievalChannel;
+    deploymentId: string;
 }): Promise<RetrievalCandidate[]> {
     const sql = `
         SELECT
             dc.document_id,
             MATCH(dc.${column}) AGAINST (? IN NATURAL LANGUAGE MODE) AS score
         FROM document_chunks dc
-        INNER JOIN (
-            SELECT document_id, MAX(id) AS latest_id
-            FROM document_chunks
-            GROUP BY document_id
-        ) latest ON latest.latest_id = dc.id
-        WHERE MATCH(dc.${column}) AGAINST (? IN NATURAL LANGUAGE MODE) > 0
+        WHERE dc.deployment_id = ?
+          AND MATCH(dc.${column}) AGAINST (? IN NATURAL LANGUAGE MODE) > 0
         ORDER BY score DESC
         LIMIT ?
     `;
 
     try {
-        const [rows] = await pool.query<FullTextResultRow[]>(sql, [question, question, topK]);
+        const [rows] = await pool.query<FullTextResultRow[]>(
+            sql,
+            [question, deploymentId, question, topK],
+        );
         return rows.map((row, index) => ({
             documentId: row.document_id,
             channel,
@@ -67,23 +68,27 @@ async function retrieveFullTextCandidates({
 export function retrieveSparseCandidates(
     question: string,
     topK: number,
+    deploymentId: string,
 ): Promise<RetrievalCandidate[]> {
     return retrieveFullTextCandidates({
         question,
         topK,
         column: "content",
         channel: "sparse",
+        deploymentId,
     });
 }
 
 export function retrieveHeadingCandidates(
     question: string,
     topK: number,
+    deploymentId: string,
 ): Promise<RetrievalCandidate[]> {
     return retrieveFullTextCandidates({
         question,
         topK,
         column: "heading_text",
         channel: "heading",
+        deploymentId,
     });
 }

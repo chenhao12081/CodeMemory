@@ -3,6 +3,7 @@ import type { DocumentChunkRow } from "../tools/database.ts";
 
 export async function findLatestChunksByDocumentIds(
     documentIds: readonly string[],
+    deploymentId: string,
 ): Promise<Map<string, DocumentChunkRow>> {
     if (documentIds.length === 0) {
         return new Map();
@@ -12,14 +13,10 @@ export async function findLatestChunksByDocumentIds(
     const sql = `
         SELECT dc.*
         FROM document_chunks dc
-        INNER JOIN (
-            SELECT document_id, MAX(id) AS latest_id
-            FROM document_chunks
-            WHERE document_id IN (${placeholders})
-            GROUP BY document_id
-        ) latest ON latest.latest_id = dc.id
+        WHERE dc.deployment_id = ?
+          AND dc.document_id IN (${placeholders})
     `;
-    const [rows] = await pool.query<DocumentChunkRow[]>(sql, [...documentIds]);
+    const [rows] = await pool.query<DocumentChunkRow[]>(sql, [deploymentId, ...documentIds]);
 
     return new Map(rows.map((row) => [row.document_id, row]));
 }

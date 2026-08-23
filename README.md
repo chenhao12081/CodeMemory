@@ -12,9 +12,11 @@ CodeMemory 是一个可复现的中文技术知识库 RAG 项目。它实现了 
 ```mermaid
 flowchart LR
     A[Markdown 语料] --> B[标题感知切片]
-    B --> C[稳定 Chunk ID / corpusVersion]
-    C --> D[Pinecone 稠密索引]
-    C --> E[MySQL 正文与标题索引]
+    B --> C[稳定 Chunk ID / corpusVersion / deploymentId]
+    C --> V[绿色版本构建与校验]
+    V --> D[Pinecone 独立 namespace]
+    V --> E[MySQL deployment 分区]
+    V --> S[原子切换 active 指针]
     Q[用户问题] --> R[意图路由]
     R -->|知识库问题| F[三路并发召回]
     R -->|范围外| G[通用回答]
@@ -118,9 +120,32 @@ pnpm corpus:version
 pnpm corpus:rebuild
 ```
 
-`corpus:rebuild` 会替换当前 Pinecone 默认 namespace 和 MySQL 语料表，运行前请确认
-目标索引与数据库名称。稳定 Chunk ID 由来源、标题路径和正文共同生成，评测集通过
-`corpusVersion` 防止误用旧标签。
+`corpus:rebuild` 使用版本化蓝绿发布，不会清空活动版本。它会先在新的 Pinecone
+namespace 和 MySQL deployment 分区中完成构建，校验两端 Chunk 数量与稳定 ID，最后
+通过 MySQL 单行活动指针原子切换。任一步失败都不会改变当前活动版本。
+
+稳定 Chunk ID 由来源、标题路径和正文共同生成；`corpusVersion` 表示语料成员集合，
+评测集用它防止误用旧标签。`deploymentId` 还包含 Embedding 模型与切片配置，因此同一
+语料更换模型也会发布为独立版本。
+
+查看版本和回滚：
+
+```bash
+pnpm corpus:list
+pnpm corpus:rollback
+pnpm corpus:activate -- sha256:目标-deployment-id
+```
+
+回滚也是一次活动指针原子切换，不重新向量化。确认旧版本已没有在途请求后，可以显式
+清理其 MySQL Chunk 和 Pinecone namespace：
+
+```bash
+pnpm corpus:cleanup -- sha256:待清理-deployment-id --confirm
+```
+
+首次对旧数据库运行 `pnpm setup:retrieval-indexes` 时，现有 MySQL 数据和 Pinecone
+默认 namespace 会登记为 legacy active deployment，数据不会被删除。新版本成功切换
+后，legacy 版本保留为 previous，可立即回滚。
 
 ## 评测
 
@@ -155,7 +180,11 @@ pnpm typecheck
 | `pnpm db:down` | 停止 MySQL，保留数据卷 |
 | `pnpm bootstrap` | 服务检查、全文索引初始化和语料重建 |
 | `pnpm corpus:version` | 只计算切片数量与 corpusVersion，不写外部存储 |
-| `pnpm corpus:rebuild` | 重建 Pinecone 与 MySQL 语料 |
+| `pnpm corpus:rebuild` | 构建、校验并蓝绿切换新语料版本 |
+| `pnpm corpus:list` | 查看所有 deployment 状态、namespace 和 Chunk 数 |
+| `pnpm corpus:rollback` | 原子切回 previous deployment |
+| `pnpm corpus:activate -- ID` | 激活指定 ready/retired deployment |
+| `pnpm corpus:cleanup -- ID --confirm` | 永久清理指定非活动 deployment |
 | `pnpm start -- "问题"` | 执行一次完整 LangGraph 问答 |
 | `pnpm test` | 运行单元测试 |
 | `pnpm typecheck` | 运行 TypeScript 类型检查 |
@@ -190,5 +219,6 @@ ollama pull qwen2.5:7b
 ## 当前边界
 
 - 公开语料只用于复现链路，不代表正式评测规模。
-- 当前索引重建会整体替换数据，不支持在线原子切换。
+- 活动指针保证新请求使用同一版本，但清理旧版本前仍应预留在途请求的完成时间。
+- 跨存储构建不是分布式事务；通过“先完整构建并校验、最后只切 MySQL 指针”保证失败不影响旧版本。
 - 当前入口是 CLI；HTTP/SSE 接口与引用展示仍在后续计划中。

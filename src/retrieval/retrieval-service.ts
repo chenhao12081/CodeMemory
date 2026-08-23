@@ -1,4 +1,5 @@
 import { performance } from "node:perf_hooks";
+import { getActiveCorpusDeployment } from "../corpus/registry.ts";
 import { findLatestChunksByDocumentIds } from "./chunk-repository.ts";
 import { retrieveChannelsWithTrace } from "./channel-runner.ts";
 import { retrievalConfig } from "./config.ts";
@@ -24,10 +25,23 @@ function errorMessage(error: unknown): string {
 
 export async function retrieveFromMultipleChannels(question: string) {
     const totalStartedAt = performance.now();
+    const deployment = await getActiveCorpusDeployment();
     const recall = await retrieveChannelsWithTrace({
-        dense: () => retrieveDenseCandidates(question, retrievalConfig.denseTopK),
-        sparse: () => retrieveSparseCandidates(question, retrievalConfig.sparseTopK),
-        heading: () => retrieveHeadingCandidates(question, retrievalConfig.headingTopK),
+        dense: () => retrieveDenseCandidates(
+            question,
+            retrievalConfig.denseTopK,
+            deployment.pineconeNamespace,
+        ),
+        sparse: () => retrieveSparseCandidates(
+            question,
+            retrievalConfig.sparseTopK,
+            deployment.deploymentId,
+        ),
+        heading: () => retrieveHeadingCandidates(
+            question,
+            retrievalConfig.headingTopK,
+            deployment.deploymentId,
+        ),
     });
     const { channelResults } = recall;
     const counts = Object.fromEntries(
@@ -59,6 +73,7 @@ export async function retrieveFromMultipleChannels(question: string) {
     const chunkLookupStartedAt = performance.now();
     const chunksByDocumentId = await findLatestChunksByDocumentIds(
         fusedCandidates.map((candidate) => candidate.documentId),
+        deployment.deploymentId,
     );
     const chunkLookupMs = performance.now() - chunkLookupStartedAt;
     const candidatesWithChunks = fusedCandidates
@@ -99,6 +114,7 @@ export async function retrieveFromMultipleChannels(question: string) {
     };
 
     return {
+        deployment,
         counts,
         channelResults,
         fusedCandidates,

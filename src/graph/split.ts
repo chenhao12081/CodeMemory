@@ -9,14 +9,26 @@ import { replaceChunksInDB } from "../tools/database.ts";
 import type { DocumentChunk } from "../tools/database.ts";
 import pool from "../database/db.ts";
 import {
+    MARKDOWN_CHUNKING_CONFIG,
+    createCorpusDeploymentId,
+    pineconeNamespaceForDeployment,
+} from "../corpus/deployment.ts";
+import {
     CHUNK_IDENTITY_SCHEMA_VERSION,
     createCorpusVersion,
     createStableChunkId,
 } from "../corpus/identity.ts";
+import {
+    activateCorpusDeployment,
+    beginCorpusDeployment,
+    getCorpusDeployment,
+    markCorpusDeploymentFailed,
+    markCorpusDeploymentReady,
+    validateDeploymentChunks,
+} from "../corpus/registry.ts";
 // import { Ollama } from "ollama";
 import ollama from "ollama";
 
-const DEFAULT_NAMESPACE = "__default__";
 const PINECONE_CONSISTENCY_TIMEOUT_MS = 60_000;
 const PINECONE_CONSISTENCY_POLL_MS = 1_000;
 type PineconeIndex = ReturnType<Pinecone["index"]>;
@@ -82,16 +94,16 @@ function prepareCorpus(chunks: readonly Document[]) {
     };
 }
 
-function defaultNamespaceRecordCount(namespaces: unknown): number {
+function namespaceRecordCount(namespaces: unknown, namespaceName: string): number {
     if (
         typeof namespaces !== "object"
         || namespaces === null
-        || !(DEFAULT_NAMESPACE in namespaces)
+        || !(namespaceName in namespaces)
     ) {
         return 0;
     }
 
-    const namespace = (namespaces as Record<string, unknown>)[DEFAULT_NAMESPACE];
+    const namespace = (namespaces as Record<string, unknown>)[namespaceName];
     if (typeof namespace !== "object" || namespace === null) {
         return 0;
     }
@@ -103,13 +115,14 @@ function defaultNamespaceRecordCount(namespaces: unknown): number {
 async function waitForPineconeRecordCount(
     index: PineconeIndex,
     indexName: string,
+    namespaceName: string,
     expectedCount: number,
 ): Promise<void> {
     const deadline = Date.now() + PINECONE_CONSISTENCY_TIMEOUT_MS;
 
     while (Date.now() < deadline) {
         const stats = await index.describeIndexStats();
-        const currentCount = defaultNamespaceRecordCount(stats.namespaces);
+        const currentCount = namespaceRecordCount(stats.namespaces, namespaceName);
         if (currentCount === expectedCount) {
             return;
         }
@@ -118,7 +131,7 @@ async function waitForPineconeRecordCount(
 
     throw new Error(
         `等待 Pinecone 记录数变为 ${expectedCount} 超时，` +
-        `请检查 ${indexName} 默认 namespace`,
+        `请检查 ${indexName}/${namespaceName}`,
     );
 }
 
@@ -243,13 +256,13 @@ async function main() {
 
         // 第三步：对过大的 chunk进一步使用 RecursiveCharacterTextSplitter切分
         const textSplitter = new RecursiveCharacterTextSplitter({
-            chunkSize: 1000,
-            chunkOverlap: 200,
-            separators: ["\n\n", "\n", "。", "，", " ", ""],
+            chunkSize: MARKDOWN_CHUNKING_CONFIG.chunkSize,
+            chunkOverlap: MARKDOWN_CHUNKING_CONFIG.chunkOverlap,
+            separators: [...MARKDOWN_CHUNKING_CONFIG.separators],
         });
 
         for (const chunk of headerChunks) {
-            if (chunk.text.length > 1200) {
+            if (chunk.text.length > MARKDOWN_CHUNKING_CONFIG.recursiveThreshold) {
                 const subdocs = await textSplitter.createDocuments([chunk.text]);
                 for (const subdoc of subdocs) {
                     subdoc.metadata = {
@@ -282,12 +295,24 @@ async function main() {
     console.log(`稳定 chunk 数：${preparedCorpus.chunks.length}`);
     console.log(`corpusVersion：${preparedCorpus.corpusVersion}`);
 
+    const embeddingModel = process.env.OLLAMA_EMBEDDING_MODEL?.trim() || "bge-m3";
+    const deploymentId = createCorpusDeploymentId({
+        corpusVersion: preparedCorpus.corpusVersion,
+        embeddingModel,
+    });
+    const pineconeNamespace = pineconeNamespaceForDeployment(deploymentId);
+    console.log(`deploymentId：${deploymentId}`);
+    console.log(`Pinecone namespace：${pineconeNamespace}`);
+
     if (process.argv.includes("--version-only")) {
         return;
     }
-    if (!process.argv.includes("--replace-corpus")) {
+    if (
+        !process.argv.includes("--blue-green")
+        && !process.argv.includes("--replace-corpus")
+    ) {
         throw new Error(
-            "稳定 ID 入库必须显式使用 --replace-corpus，避免与旧 doc-* 数据混写",
+            "语料构建必须显式使用 --blue-green",
         );
     }
     const pineconeApiKey = process.env.PINECONE_API_KEY?.trim();
@@ -299,6 +324,7 @@ async function main() {
         throw new Error("PINECONE_INDEX_NAME 不能为空");
     }
     const index = new Pinecone({ apiKey: pineconeApiKey }).index(pineconeIndexName);
+    const targetIndex = index.namespace(pineconeNamespace);
     // console.log("\n--- 前 2 个 Chunk 示例 ---");
     for (let i = 0; i < Math.min(2, allChunks.length); i++) {
         const chunk = allChunks[i];
@@ -307,60 +333,116 @@ async function main() {
         // console.log(`  内容预览: ${chunk.pageContent.slice(0, 150)}...`);
     }
 
-    // embeddings是chunks完成向量化的结果
-    const embeddingModel = process.env.OLLAMA_EMBEDDING_MODEL?.trim() || "bge-m3";
-    const { total_duration, embeddings } = await ollama.embed({
-        model: embeddingModel,
-        input: preparedCorpus.chunks.map((chunk) => chunk.content),
-    })
-    console.log(
-        `\n向量化完成：模型=${embeddingModel}，向量=${embeddings.length}，`
-        + `耗时=${(total_duration / 1e9)}s`,
-    );
+    const existingDeployment = await getCorpusDeployment(deploymentId);
+    if (existingDeployment?.status === "active") {
+        console.log(`deployment ${deploymentId} 已是活动版本，无需重复重建`);
+        return;
+    }
 
-    const documentChunks: DocumentChunk[] = preparedCorpus.chunks.map((chunk, index) => ({
-        document_id: chunk.chunkId,
-        chunk_index: index,
-        content: chunk.content,
-        metadata: chunk.metadata,
-    }));
-
-    const pcRecords = preparedCorpus.chunks.map((chunk, index) => {
-        const serializedMetadata: Record<string, string | number | boolean | string[]> = {
-            chunk_index: index, // 与 MySQL document_chunks.chunk_index 一致，便于关联查询
-        };
-        for (const [key, value] of Object.entries(chunk.metadata)) {
-            serializedMetadata[key] = typeof value === "object" && value !== null && !Array.isArray(value)
-                ? JSON.stringify(value)
-                : value;
-        }
-        return {
-            id: chunk.chunkId,
-            values: embeddings[index],
-            metadata: serializedMetadata,
-        };
+    await beginCorpusDeployment({
+        deploymentId,
+        corpusVersion: preparedCorpus.corpusVersion,
+        pineconeNamespace,
+        embeddingModel,
     });
 
-    console.log(
-        `准备替换 Pinecone 索引 ${pineconeIndexName} 的默认 namespace，` +
-        `以及 MySQL ${process.env.DB_DATABASE}.document_chunks`,
-    );
-    await index.deleteAll();
-    await waitForPineconeRecordCount(index, pineconeIndexName, 0);
-    console.log("已清空 Pinecone 默认 namespace");
+    try {
+        const versionedChunks = preparedCorpus.chunks.map((chunk) => ({
+            ...chunk,
+            metadata: {
+                ...chunk.metadata,
+                deployment_id: deploymentId,
+            },
+        }));
+        const stats = await index.describeIndexStats();
+        if (namespaceRecordCount(stats.namespaces, pineconeNamespace) > 0) {
+            await index.deleteAll({ namespace: pineconeNamespace });
+            await waitForPineconeRecordCount(
+                index,
+                pineconeIndexName,
+                pineconeNamespace,
+                0,
+            );
+            console.log(`已清空待构建 namespace ${pineconeNamespace}`);
+        }
 
-    // 分批上传，每批 100 条，避免单次请求过大
-    const BATCH_SIZE = 100;
-    for (let i = 0; i < pcRecords.length; i += BATCH_SIZE) {
-        const batch = pcRecords.slice(i, i + BATCH_SIZE);
-        await index.upsert({ records: batch });
-        console.log(`✅ 已上传 ${Math.min(i + BATCH_SIZE, pcRecords.length)}/${pcRecords.length}`);
+        const { total_duration, embeddings } = await ollama.embed({
+            model: embeddingModel,
+            input: versionedChunks.map((chunk) => chunk.content),
+        });
+        if (embeddings.length !== versionedChunks.length) {
+            throw new Error(
+                `Embedding 数量不一致：chunks=${versionedChunks.length}, vectors=${embeddings.length}`,
+            );
+        }
+        console.log(
+            `\n向量化完成：模型=${embeddingModel}，向量=${embeddings.length}，`
+            + `耗时=${(total_duration / 1e9)}s`,
+        );
+
+        const documentChunks: DocumentChunk[] = versionedChunks.map((chunk, chunkIndex) => ({
+            deployment_id: deploymentId,
+            document_id: chunk.chunkId,
+            chunk_index: chunkIndex,
+            content: chunk.content,
+            metadata: chunk.metadata,
+        }));
+        const pcRecords = versionedChunks.map((chunk, chunkIndex) => {
+            const serializedMetadata: Record<string, string | number | boolean | string[]> = {
+                chunk_index: chunkIndex,
+            };
+            for (const [key, value] of Object.entries(chunk.metadata)) {
+                serializedMetadata[key] = typeof value === "object"
+                    && value !== null
+                    && !Array.isArray(value)
+                    ? JSON.stringify(value)
+                    : value;
+            }
+            return {
+                id: chunk.chunkId,
+                values: embeddings[chunkIndex],
+                metadata: serializedMetadata,
+            };
+        });
+
+        console.log(
+            `开始构建绿色版本：Pinecone ${pineconeIndexName}/${pineconeNamespace}，`
+            + `MySQL ${process.env.DB_DATABASE}.document_chunks`,
+        );
+        const BATCH_SIZE = 100;
+        for (let i = 0; i < pcRecords.length; i += BATCH_SIZE) {
+            const batch = pcRecords.slice(i, i + BATCH_SIZE);
+            await targetIndex.upsert({ records: batch });
+            console.log(`✅ 已上传 ${Math.min(i + BATCH_SIZE, pcRecords.length)}/${pcRecords.length}`);
+        }
+        await waitForPineconeRecordCount(
+            index,
+            pineconeIndexName,
+            pineconeNamespace,
+            pcRecords.length,
+        );
+        console.log(`Pinecone 已确认 ${pcRecords.length} 条向量`);
+
+        await replaceChunksInDB(deploymentId, documentChunks);
+        await validateDeploymentChunks(
+            deploymentId,
+            documentChunks.map((chunk) => chunk.document_id),
+        );
+        await markCorpusDeploymentReady(deploymentId, documentChunks.length);
+        const activation = await activateCorpusDeployment(deploymentId);
+        console.log(
+            `✅ 蓝绿切换完成：active=${activation.active.deploymentId}，`
+            + `previous=${activation.previousDeploymentId ?? "无"}`,
+        );
+        console.log(`corpusVersion：${preparedCorpus.corpusVersion}`);
+    } catch (error) {
+        try {
+            await markCorpusDeploymentFailed(deploymentId, error);
+        } catch (markError) {
+            console.error("记录 deployment 构建失败状态时发生附加错误：", markError);
+        }
+        throw error;
     }
-    await waitForPineconeRecordCount(index, pineconeIndexName, pcRecords.length);
-    console.log(`Pinecone 已写入并确认 ${pcRecords.length} 条稳定 ID 向量`);
-
-    await replaceChunksInDB(documentChunks);
-    console.log(`✅ 语料重建完成，corpusVersion：${preparedCorpus.corpusVersion}`);
 }
 
 main()

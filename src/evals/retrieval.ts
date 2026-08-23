@@ -3,6 +3,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { performance } from "node:perf_hooks";
 import { resolve } from "node:path";
 import type { RowDataPacket } from "mysql2/promise";
+import { getActiveCorpusDeployment } from "../corpus/registry.ts";
 import pool from "../database/db.ts";
 import { retrievalConfig } from "../retrieval/config.ts";
 import { retrieveFromMultipleChannels } from "../retrieval/retrieval-service.ts";
@@ -72,10 +73,12 @@ async function validateDatasetAgainstCorpus(
     expectedCorpusVersion: string,
     cases: readonly RetrievalEvalCase[],
 ) {
+    const deployment = await getActiveCorpusDeployment();
     const [rows] = await pool.query<CorpusChunkIdentityRow[]>(`
         SELECT document_id, metadata
         FROM document_chunks
-    `);
+        WHERE deployment_id = ?
+    `, [deployment.deploymentId]);
     if (rows.length === 0) {
         throw new Error("MySQL document_chunks 为空，请先运行 pnpm corpus:rebuild");
     }
@@ -97,6 +100,12 @@ async function validateDatasetAgainstCorpus(
             + `dataset=${expectedCorpusVersion}, corpus=${currentCorpusVersion}`,
         );
     }
+    if (currentCorpusVersion !== deployment.corpusVersion) {
+        throw new Error(
+            `活动 deployment 登记的 corpusVersion 与 chunk 元数据不一致：`
+            + `registry=${deployment.corpusVersion}, chunks=${currentCorpusVersion}`,
+        );
+    }
 
     const corpusChunkIds = new Set(rows.map((row) => row.document_id));
     const labeledChunkIds = new Set(cases.flatMap((testCase) => testCase.relevantChunkIds));
@@ -109,6 +118,7 @@ async function validateDatasetAgainstCorpus(
     }
 
     return {
+        deploymentId: deployment.deploymentId,
         corpusVersion: currentCorpusVersion,
         chunkCount: rows.length,
         labeledChunkCount: labeledChunkIds.size,
