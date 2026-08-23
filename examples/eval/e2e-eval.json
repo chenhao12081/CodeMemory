@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "corpusVersion": "sha256:36446fbca0d6bfad5400b3b889a93357bd77ceb4bdc916b094bc155f8a31b354",
+  "cases": [
+    {
+      "id": "sample-rag-overlap",
+      "question": "文档切片为什么需要 overlap，重叠是不是越大越好？",
+      "expectedBranch": "rag_answer",
+      "relevantChunkIds": [
+        "sha256:ad017a2c14a5545989a7c6dae0ff97514305e366bf750785ad95654cac6d391e"
+      ],
+      "requiredFacts": [
+        "保留跨边界语义",
+        "重叠过大会造成重复召回或上下文浪费"
+      ]
+    },
+    {
+      "id": "sample-rag-rerank",
+      "question": "混合检索之后为什么还需要 Cross-Encoder 重排？",
+      "expectedBranch": "rag_answer",
+      "relevantChunkIds": [
+        "sha256:a511515d82bb7b8afc7704e372c76f156ef442c0322db46b99b953e7ca1f84aa"
+      ],
+      "requiredFacts": [
+        "同时读取问题与候选正文",
+        "需要控制候选数量和延迟"
+      ]
+    },
+    {
+      "id": "sample-rag-sse",
+      "question": "SSE 经过 Nginx 后不再实时输出，应该检查什么？",
+      "expectedBranch": "rag_answer",
+      "relevantChunkIds": [
+        "sha256:da7f2774cb06100d1e32410ea39451fc9041bd62ed494f1feaf4be0588de4466"
+      ],
+      "requiredFacts": [
+        "关闭代理缓冲",
+        "检查缓存或响应合并"
+      ]
+    },
+    {
+      "id": "sample-fallback-pinecone-alpha",
+      "question": "Pinecone 混合检索中 alpha 参数的精确取值范围和服务端请求格式是什么？",
+      "expectedBranch": "rag_fallback",
+      "criteria": [
+        "明确说明知识库资料不足",
+        "不得声称通用知识来自知识库"
+      ]
+    },
+    {
+      "id": "sample-chat-rewrite",
+      "question": "把这句话改得更礼貌：这个方案不行，重新做。",
+      "expectedBranch": "direct_chat",
+      "criteria": [
+        "保持原意",
+        "语气礼貌"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "corpusVersion": "sha256:36446fbca0d6bfad5400b3b889a93357bd77ceb4bdc916b094bc155f8a31b354",
+  "cases": [
+    {
+      "id": "sample-rag-purpose",
+      "question": "RAG 主要解决什么问题，哪些场景适合使用？",
+      "relevantChunkIds": [
+        "sha256:bf6b1d1230d6b72aa3d74f63b789ad2afa442981a293f91705245b62d5fbab53"
+      ]
+    },
+    {
+      "id": "sample-chunk-overlap",
+      "question": "文档切片为什么需要 overlap，重叠是不是越大越好？",
+      "relevantChunkIds": [
+        "sha256:ad017a2c14a5545989a7c6dae0ff97514305e366bf750785ad95654cac6d391e"
+      ]
+    },
+    {
+      "id": "sample-hybrid-rerank",
+      "question": "为什么要把稠密检索和关键词检索结合，并使用 Cross-Encoder 重排？",
+      "relevantChunkIds": [
+        "sha256:a511515d82bb7b8afc7704e372c76f156ef442c0322db46b99b953e7ca1f84aa"
+      ]
+    },
+    {
+      "id": "sample-langgraph-state",
+      "question": "StateGraph 的状态、节点、普通边和条件边分别负责什么？",
+      "relevantChunkIds": [
+        "sha256:9ec0fb26fc35df9749bda14d0499e0709f6935b6e07a81ccf803889972992a4d"
+      ]
+    },
+    {
+      "id": "sample-explicit-branch",
+      "question": "为什么评测工作流时应该显式记录 answerMode，而不是从答案文字猜分支？",
+      "relevantChunkIds": [
+        "sha256:c99ae8639013f8f60572caed3482388cad927edbdfbb0bbe6c67420a376ecb9e"
+      ]
+    },
+    {
+      "id": "sample-sse-buffer",
+      "question": "SSE 经过 Nginx 后不再实时输出，应该检查什么？",
+      "relevantChunkIds": [
+        "sha256:da7f2774cb06100d1e32410ea39451fc9041bd62ed494f1feaf4be0588de4466"
+      ]
+    },
+    {
+      "id": "sample-sse-cleanup",
+      "question": "SSE 客户端断开后，Node.js 服务为什么要取消上游任务并释放资源？",
+      "relevantChunkIds": [
+        "sha256:5bce00119d2ef92533933ec3dd45c23e01d244a846e4fa69b7dcbbf7f3144c9a"
+      ]
+    }
+  ]
+}

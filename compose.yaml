@@ -1,0 +1,31 @@
+name: codememory
+
+services:
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: codememory-root
+      MYSQL_DATABASE: codememory
+      MYSQL_USER: codememory
+      MYSQL_PASSWORD: codememory
+      TZ: Asia/Shanghai
+    ports:
+      - "3307:3306"
+    volumes:
+      - codememory-mysql-data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_0900_ai_ci
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD --silent
+      interval: 3s
+      timeout: 3s
+      retries: 30
+      start_period: 15s
+
+volumes:
+  codememory-mysql-data:

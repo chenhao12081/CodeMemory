@@ -6,8 +6,9 @@ export async function retrieveDenseCandidates(
     question: string,
     topK: number,
 ): Promise<RetrievalCandidate[]> {
+    const embeddingModel = process.env.OLLAMA_EMBEDDING_MODEL?.trim() || "bge-m3";
     const embeddingResult = await ollama.embed({
-        model: "bge-m3",
+        model: embeddingModel,
         input: question,
     });
 

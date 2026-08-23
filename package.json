@@ -1,24 +1,41 @@
 {
   "name": "CodeMemory",
   "version": "1.0.0",
-  "description": "",
+  "description": "A reproducible RAG assistant with hybrid retrieval, RRF fusion, cross-encoder reranking, and LangGraph orchestration.",
   "main": "index.js",
   "type": "module",
   "scripts": {
     "test": "node --test src/retrieval/*.test.ts src/corpus/*.test.ts src/evals/*.test.ts src/graph/*.test.ts",
+    "typecheck": "tsc --noEmit",
     "start": "node src/graph/index.ts",
+    "check:env": "node src/cli/doctor.ts",
+    "check:services": "node src/cli/doctor.ts --services",
+    "db:up": "docker compose up -d --wait mysql",
+    "db:down": "docker compose down",
+    "bootstrap": "node src/cli/doctor.ts --services && node src/database/setup-retrieval-indexes.ts && node src/graph/split.ts --replace-corpus",
     "corpus:version": "node src/graph/split.ts --version-only",
     "corpus:rebuild": "node src/graph/split.ts --replace-corpus",
     "setup:retrieval-indexes": "node src/database/setup-retrieval-indexes.ts",
     "eval:intent": "node src/evals/intent.ts",
     "eval:intent:base": "node src/evals/intent.ts --model qwen2.5",
     "eval:retrieval": "node src/evals/retrieval.ts",
+    "eval:retrieval:sample": "node src/evals/retrieval.ts examples/eval/retrieval-eval.json",
     "eval:e2e": "node src/evals/e2e.ts",
+    "eval:e2e:sample": "node src/evals/e2e.ts examples/eval/e2e-eval.json",
     "generate:intent-data": "node src/data/generate-intent-dataset.ts"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "rag",
+    "langgraph",
+    "hybrid-search",
+    "reranking"
+  ],
+  "author": "chenhao12081",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.18.0",
+    "pnpm": ">=10.0.0"
+  },
   "packageManager": "pnpm@10.23.0",
   "dependencies": {
     "@huggingface/transformers": "^3.8.1",

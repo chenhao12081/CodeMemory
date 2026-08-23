@@ -1,7 +1,6 @@
 import "dotenv/config";
-import { readdirSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-import { dirname, join, basename } from "node:path";
+import { existsSync, readdirSync } from "node:fs";
+import { join, basename, resolve } from "node:path";
 import { TextLoader } from "@langchain/classic/document_loaders/fs/text";
 import { RecursiveCharacterTextSplitter } from "@langchain/classic/text_splitter";
 import { Document } from "langchain";
@@ -17,18 +16,10 @@ import {
 // import { Ollama } from "ollama";
 import ollama from "ollama";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const pc = new Pinecone({
-    apiKey: String(process.env.PINECONE_API_KEY),
-})
-const pineconeIndexName = process.env.PINECONE_INDEX_NAME?.trim();
-if (!pineconeIndexName) {
-    throw new Error("PINECONE_INDEX_NAME 不能为空");
-}
-const index = pc.index(pineconeIndexName);
 const DEFAULT_NAMESPACE = "__default__";
 const PINECONE_CONSISTENCY_TIMEOUT_MS = 60_000;
 const PINECONE_CONSISTENCY_POLL_MS = 1_000;
+type PineconeIndex = ReturnType<Pinecone["index"]>;
 
 type PreparedChunk = {
     chunkId: string;
@@ -109,7 +100,11 @@ function defaultNamespaceRecordCount(namespaces: unknown): number {
     return typeof recordCount === "number" ? recordCount : 0;
 }
 
-async function waitForPineconeRecordCount(expectedCount: number): Promise<void> {
+async function waitForPineconeRecordCount(
+    index: PineconeIndex,
+    indexName: string,
+    expectedCount: number,
+): Promise<void> {
     const deadline = Date.now() + PINECONE_CONSISTENCY_TIMEOUT_MS;
 
     while (Date.now() < deadline) {
@@ -123,7 +118,7 @@ async function waitForPineconeRecordCount(expectedCount: number): Promise<void> 
 
     throw new Error(
         `等待 Pinecone 记录数变为 ${expectedCount} 超时，` +
-        `请检查 ${pineconeIndexName} 默认 namespace`,
+        `请检查 ${indexName} 默认 namespace`,
     );
 }
 
@@ -213,14 +208,28 @@ function inferCategory(filename: string): string {
 
 async function main() {
     // 第一步 获取所有 markdown
-    const dirname = join(__dirname, "..", "static");
-    const files = readdirSync(dirname).filter((f) => f.endsWith(".md")).sort();
-    console.log(`一个有${files.length}个Markdown文件`);
+    const configuredCorpusDirectory = process.env.CORPUS_DIR?.trim()
+        || join("src", "static");
+    const corpusDirectory = resolve(process.cwd(), configuredCorpusDirectory);
+    if (!existsSync(corpusDirectory)) {
+        throw new Error(
+            `语料目录不存在：${corpusDirectory}\n`
+            + "请设置 CORPUS_DIR，或复制 .env.example 使用仓库自带示例语料。",
+        );
+    }
+    const files = readdirSync(corpusDirectory)
+        .filter((file) => file.endsWith(".md"))
+        .sort();
+    if (files.length === 0) {
+        throw new Error(`语料目录中没有 Markdown 文件：${corpusDirectory}`);
+    }
+    console.log(`语料目录：${corpusDirectory}`);
+    console.log(`共有 ${files.length} 个 Markdown 文件`);
 
     const allChunks: Document[] = [];
 
     for (const file of files) {
-        const filePath = join(dirname, file);
+        const filePath = join(corpusDirectory, file);
         const fileLoader = new TextLoader(filePath);
         const docs = await fileLoader.load();
         const rawContent = docs.map((d) => d.pageContent).join("\n\n");
@@ -281,6 +290,15 @@ async function main() {
             "稳定 ID 入库必须显式使用 --replace-corpus，避免与旧 doc-* 数据混写",
         );
     }
+    const pineconeApiKey = process.env.PINECONE_API_KEY?.trim();
+    const pineconeIndexName = process.env.PINECONE_INDEX_NAME?.trim();
+    if (!pineconeApiKey) {
+        throw new Error("PINECONE_API_KEY 不能为空");
+    }
+    if (!pineconeIndexName) {
+        throw new Error("PINECONE_INDEX_NAME 不能为空");
+    }
+    const index = new Pinecone({ apiKey: pineconeApiKey }).index(pineconeIndexName);
     // console.log("\n--- 前 2 个 Chunk 示例 ---");
     for (let i = 0; i < Math.min(2, allChunks.length); i++) {
         const chunk = allChunks[i];
@@ -290,11 +308,15 @@ async function main() {
     }
 
     // embeddings是chunks完成向量化的结果
+    const embeddingModel = process.env.OLLAMA_EMBEDDING_MODEL?.trim() || "bge-m3";
     const { total_duration, embeddings } = await ollama.embed({
-        model: "bge-m3",
+        model: embeddingModel,
         input: preparedCorpus.chunks.map((chunk) => chunk.content),
     })
-    console.log(`\n向量化完成，共获得${embeddings.length}个向量，耗时${(total_duration / 1e9)}s`);
+    console.log(
+        `\n向量化完成：模型=${embeddingModel}，向量=${embeddings.length}，`
+        + `耗时=${(total_duration / 1e9)}s`,
+    );
 
     const documentChunks: DocumentChunk[] = preparedCorpus.chunks.map((chunk, index) => ({
         document_id: chunk.chunkId,
@@ -324,7 +346,7 @@ async function main() {
         `以及 MySQL ${process.env.DB_DATABASE}.document_chunks`,
     );
     await index.deleteAll();
-    await waitForPineconeRecordCount(0);
+    await waitForPineconeRecordCount(index, pineconeIndexName, 0);
     console.log("已清空 Pinecone 默认 namespace");
 
     // 分批上传，每批 100 条，避免单次请求过大
@@ -334,7 +356,7 @@ async function main() {
         await index.upsert({ records: batch });
         console.log(`✅ 已上传 ${Math.min(i + BATCH_SIZE, pcRecords.length)}/${pcRecords.length}`);
     }
-    await waitForPineconeRecordCount(pcRecords.length);
+    await waitForPineconeRecordCount(index, pineconeIndexName, pcRecords.length);
     console.log(`Pinecone 已写入并确认 ${pcRecords.length} 条稳定 ID 向量`);
 
     await replaceChunksInDB(documentChunks);
